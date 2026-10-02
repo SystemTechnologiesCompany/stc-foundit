@@ -49,29 +49,21 @@ export default function ReportsFeedPage() {
     <div className="mx-auto max-w-4xl px-4 py-10">
       <h1 className="text-2xl font-semibold">Browse reports</h1>
 
-      <div className="mt-4 flex flex-wrap gap-3">
-        <select
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value as ReportType | "all")}
-          className="rounded-md border border-border bg-surface px-3 py-1.5 text-sm outline-none focus:border-brand"
-        >
-          <option value="all">Lost & found</option>
-          <option value="lost">Lost only</option>
-          <option value="found">Found only</option>
-        </select>
-        <select
-          value={categoryFilter}
-          onChange={(e) =>
-            setCategoryFilter(e.target.value as ReportCategory | "all")
-          }
-          className="rounded-md border border-border bg-surface px-3 py-1.5 text-sm outline-none focus:border-brand"
-        >
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>
-              {c === "all" ? "All categories" : c[0].toUpperCase() + c.slice(1)}
-            </option>
+      <div className="mt-5 space-y-4">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by report type">
+          {(["all", "lost", "found"] as const).map((type) => (
+            <button key={type} type="button" aria-pressed={typeFilter === type} onClick={() => setTypeFilter(type)} className={`filter-chip ${typeFilter === type ? "filter-chip-active" : ""}`}>
+              {type === "all" ? "Everything" : type[0].toUpperCase() + type.slice(1)}
+            </button>
           ))}
-        </select>
+        </div>
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by category">
+          {CATEGORIES.map((category) => (
+            <button key={category} type="button" aria-pressed={categoryFilter === category} onClick={() => setCategoryFilter(category)} className={`filter-chip ${categoryFilter === category ? "filter-chip-active" : ""}`}>
+              {category === "all" ? "All categories" : category[0].toUpperCase() + category.slice(1)}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="mt-6 space-y-3">

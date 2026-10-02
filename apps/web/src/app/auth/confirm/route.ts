@@ -5,11 +5,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
+  const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
   const cookieStore = await cookies();
 
-  if (tokenHash && type) {
+  if ((code || tokenHash) && (code || type)) {
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -25,10 +26,9 @@ export async function GET(request: NextRequest) {
       },
     );
 
-    const { error } = await supabase.auth.verifyOtp({
-      token_hash: tokenHash,
-      type,
-    });
+    const { error } = code
+      ? await supabase.auth.exchangeCodeForSession(code)
+      : await supabase.auth.verifyOtp({ token_hash: tokenHash!, type: type! });
     if (!error) return NextResponse.redirect(new URL("/reports", origin));
   }
 

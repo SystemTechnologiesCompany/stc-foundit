@@ -1,0 +1,67 @@
+{
+  "expo": {
+    "name": "STC FoundIt",
+    "slug": "stc-foundit",
+    "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/9b792009-9a8f-46dd-9ff0-0dff1f06c2ce"
+    },
+    "scheme": "stcfoundit",
+    "orientation": "portrait",
+    "icon": "./assets/foundit-mark.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#08110D",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.systemtechnologiescompany.stcfoundit",
+      "googleServicesFile": "./google-services.json",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#08110D",
+        "foregroundImage": "./assets/foundit-mark.png",
+        "monochromeImage": "./assets/foundit-mark.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-router",
+        {
+          "root": "src/app"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "FoundIt uses your photos to add a picture to an item report.",
+          "cameraPermission": "FoundIt uses your camera to photograph an item you found or lost.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#A9D77C",
+          "defaultChannel": "foundit-updates"
+        }
+      ]
+    ],
+    "extra": {
+      "router": {
+        "root": "src/app"
+      },
+      "eas": {
+        "projectId": "9b792009-9a8f-46dd-9ff0-0dff1f06c2ce"
+      }
+    },
+    "owner": "stctestings-team"
+  }
+}

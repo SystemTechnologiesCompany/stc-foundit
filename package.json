@@ -9,5 +9,8 @@
     "dev:web": "npm run dev --workspace=apps/web",
     "dev:mobile": "npm run start --workspace=apps/mobile",
     "build:shared": "npm run build --workspace=packages/shared"
+  },
+  "dependencies": {
+    "expo-updates": "~57.0.24"
   }
 }

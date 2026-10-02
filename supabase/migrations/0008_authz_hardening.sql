@@ -86,36 +86,44 @@ create trigger guard_profile_security_fields
 -- Restrict report access and writes to verified active accounts at the RLS
 -- boundary. The client-side route gate is only a convenience layer.
 drop policy if exists "profiles are readable by authenticated users" on public.profiles;
+drop policy if exists "profiles are readable by active users" on public.profiles;
 create policy "profiles are readable by active users"
   on public.profiles for select to authenticated
   using (id = auth.uid() or public.is_active_student() or public.is_current_user_admin());
 
 drop policy if exists "active reports are readable by authenticated users" on public.reports;
+drop policy if exists "active reports are readable by active users" on public.reports;
 create policy "active reports are readable by active users"
   on public.reports for select to authenticated
   using (public.is_active_student());
 drop policy if exists "users can create their own reports" on public.reports;
+drop policy if exists "active users can create their own reports" on public.reports;
 create policy "active users can create their own reports"
   on public.reports for insert to authenticated
   with check (auth.uid() = user_id and public.is_active_student());
 drop policy if exists "users can update their own reports" on public.reports;
+drop policy if exists "active users can update their own reports" on public.reports;
 create policy "active users can update their own reports"
   on public.reports for update to authenticated
   using (auth.uid() = user_id and public.is_active_student())
   with check (auth.uid() = user_id and public.is_active_student());
 drop policy if exists "users can delete their own reports" on public.reports;
+drop policy if exists "active users can delete their own reports" on public.reports;
 create policy "active users can delete their own reports"
   on public.reports for delete to authenticated
   using (auth.uid() = user_id and public.is_active_student());
+drop policy if exists "admins can delete any report" on public.reports;
 create policy "admins can delete any report"
   on public.reports for delete to authenticated
   using (public.is_current_user_admin());
 
 drop policy if exists "report images readable by authenticated users" on public.report_images;
+drop policy if exists "report images readable by active users" on public.report_images;
 create policy "report images readable by active users"
   on public.report_images for select to authenticated
   using (public.is_active_student());
 drop policy if exists "users can attach images to their own reports" on public.report_images;
+drop policy if exists "active users can attach images to their own reports" on public.report_images;
 create policy "active users can attach images to their own reports"
   on public.report_images for insert to authenticated
   with check (
@@ -127,11 +135,13 @@ create policy "active users can attach images to their own reports"
   );
 
 drop policy if exists "campus locations are readable by authenticated users" on public.campus_locations;
+drop policy if exists "campus locations are readable by active users" on public.campus_locations;
 create policy "campus locations are readable by active users"
   on public.campus_locations for select to authenticated
   using (public.is_active_student());
 
 drop policy if exists "match visible to the two involved reporters" on public.matches;
+drop policy if exists "match visible to active involved reporters" on public.matches;
 create policy "match visible to active involved reporters"
   on public.matches for select to authenticated
   using (
@@ -142,6 +152,7 @@ create policy "match visible to active involved reporters"
   );
 
 drop policy if exists "members can read their conversations" on public.conversations;
+drop policy if exists "active members can read their conversations" on public.conversations;
 create policy "active members can read their conversations"
   on public.conversations for select to authenticated
   using (public.is_active_student() and exists (
@@ -149,10 +160,12 @@ create policy "active members can read their conversations"
     where cm.conversation_id = conversations.id and cm.user_id = auth.uid()
   ));
 drop policy if exists "members can read their membership rows" on public.conversation_members;
+drop policy if exists "active members can read their membership rows" on public.conversation_members;
 create policy "active members can read their membership rows"
   on public.conversation_members for select to authenticated
   using (public.is_active_student() and user_id = auth.uid());
 drop policy if exists "members can update their own read marker" on public.conversation_members;
+drop policy if exists "active members can update their own read marker" on public.conversation_members;
 create policy "active members can update their own read marker"
   on public.conversation_members for update to authenticated
   using (public.is_active_student() and user_id = auth.uid())
@@ -160,6 +173,7 @@ create policy "active members can update their own read marker"
 revoke update on public.conversation_members from authenticated;
 grant update (last_read_at) on public.conversation_members to authenticated;
 drop policy if exists "members can read messages in their conversations" on public.messages;
+drop policy if exists "active members can read messages in their conversations" on public.messages;
 create policy "active members can read messages in their conversations"
   on public.messages for select to authenticated
   using (public.is_active_student() and exists (
@@ -167,6 +181,7 @@ create policy "active members can read messages in their conversations"
     where cm.conversation_id = messages.conversation_id and cm.user_id = auth.uid()
   ));
 drop policy if exists "members can send messages in their conversations" on public.messages;
+drop policy if exists "active members can send messages in their conversations" on public.messages;
 create policy "active members can send messages in their conversations"
   on public.messages for insert to authenticated
   with check (
@@ -192,6 +207,7 @@ create policy "active users can upload report images"
     )
   );
 drop policy if exists "signed in users can view report images" on storage.objects;
+drop policy if exists "active users can view report images" on storage.objects;
 create policy "active users can view report images"
   on storage.objects for select to authenticated
   using (bucket_id = 'report-images' and public.is_active_student());

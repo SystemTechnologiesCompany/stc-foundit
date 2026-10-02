@@ -31,6 +31,7 @@ export default function SignupPage() {
       email,
       password,
       options: {
+        emailRedirectTo: new URL("/auth/confirm", window.location.origin).toString(),
         data: { display_name: name, university },
       },
     });

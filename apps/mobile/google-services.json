@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "12475420741",
+    "project_id": "stc-foundit",
+    "storage_bucket": "stc-foundit.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:12475420741:android:813285b72eb75bdacf532c",
+        "android_client_info": {
+          "package_name": "com.systemtechnologiescompany.stcfoundit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChTL27AmGVSSbR1k-Gc-9Siirn-FaigvI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
