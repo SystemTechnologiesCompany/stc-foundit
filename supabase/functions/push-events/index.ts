@@ -108,6 +108,23 @@ Deno.serve(async (request) => {
       }
     }
 
+    if (event.table === "news_posts" && event.type === "UPDATE" && event.record && event.old_record) {
+      const post = event.record;
+      if (post.is_published === true && event.old_record.is_published !== true) {
+        const { data: tokens, error: tokenError } = await admin.from("push_tokens").select("token,user_id");
+        if (tokenError) throw tokenError;
+        const recipients = (tokens ?? []).filter((row) => row.user_id !== post.author_id);
+        notifications.push(...recipients.map((row) => ({
+          to: row.token,
+          title: "An admin posted some news!",
+          body: "Take a look!",
+          sound: "default" as const,
+          channelId: "foundit-updates" as const,
+          data: { url: "/news" },
+        })));
+      }
+    }
+
     const results = await sendPushMessages(notifications);
     if (results.invalidTokens.length) {
       await admin.from("push_tokens").delete().in("token", results.invalidTokens);

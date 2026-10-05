@@ -57,13 +57,14 @@ export default function LoginScreen() {
 
   return (
     <Screen>
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={0}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"} showsVerticalScrollIndicator={false}>
           <BrandLockup />
           <View style={styles.heading}>
             <Eyebrow>GOOD TO HAVE YOU BACK</Eyebrow>
             <Text style={styles.title}>Your campus{`\n`}community is here.</Text>
             <Text style={styles.subtitle}>Sign in to find what’s missing—and help an item get home.</Text>
+            <Text style={styles.nameChangeNote}>You can change your account name in Profile settings once every 7 days.</Text>
           </View>
           <Panel style={styles.formPanel}>
             {!isSupabaseConfigured ? <MessageBanner tone="info">Connect the app to Supabase first: copy apps/mobile/.env.example to apps/mobile/.env, add your project URL and public key, then restart Expo.</MessageBanner> : null}
@@ -90,6 +91,7 @@ const styles = StyleSheet.create({
   heading: { gap: 12, marginTop: 6 },
   title: { color: theme.colors.text, fontSize: 36, lineHeight: 40, fontWeight: "900", letterSpacing: -1.3 },
   subtitle: { color: theme.colors.muted, fontSize: 14, lineHeight: 21, maxWidth: 310 },
+  nameChangeNote: { color: theme.colors.brand, fontSize: 11, lineHeight: 16, maxWidth: 310 },
   formPanel: { gap: 17, padding: 18 },
   forgot: { alignSelf: "flex-end", marginTop: -7 },
   forgotText: { color: theme.colors.brand, fontSize: 12, fontWeight: "700" },

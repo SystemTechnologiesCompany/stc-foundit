@@ -133,7 +133,7 @@ export default function NewsPage() {
     </section>}
     {error && <p role="alert" className="mt-4 rounded-xl border border-danger/30 bg-danger/10 p-3 text-sm text-danger">{error}</p>}
     <div className="mt-6 space-y-4">
-      {!posts.length && <div className="rounded-3xl border border-border bg-surface p-8 text-center"><span className="text-2xl text-brand">✦</span><h2 className="mt-3 font-bold">The community board is quiet</h2><p className="mt-2 text-sm text-muted">Official updates from the FoundIt team will appear here.</p></div>}
+      {!posts.length && <div className="rounded-3xl border border-border bg-surface p-8 text-center"><span className="text-2xl text-brand">🥲</span><h2 className="mt-3 font-bold">The community board is quiet</h2><p className="mt-2 text-sm text-muted">Official updates from the FoundIt team will appear here.</p></div>}
       {posts.map((post) => <article key={post.id} className="overflow-hidden rounded-3xl border border-border bg-surface p-4 sm:p-5">
         <div className="flex items-center gap-3"><Avatar profile={post.author} /><div className="min-w-0 flex-1"><p className="truncate text-sm font-bold">{post.author?.display_name ?? "FoundIt Admin"}</p><p className="text-[0.65rem] text-muted">{new Date(post.created_at).toLocaleString()}</p></div><span className="rounded-full bg-brand/10 px-2.5 py-1 text-[0.6rem] font-black tracking-widest text-brand">ADMIN</span></div>
         {post.body && <p className="whitespace-pre-wrap break-words py-4 text-sm leading-6">{post.body}</p>}
