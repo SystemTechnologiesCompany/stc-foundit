@@ -39,6 +39,7 @@ export default function LoginPage() {
       <p className="eyebrow">STC FoundIt · Campus community</p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight">Welcome back</h1>
       <p className="mt-2 text-sm text-muted">Sign in to browse reports and reconnect items with their owners.</p>
+      <p className="mt-3 rounded-xl border border-border bg-surface px-3 py-2 text-xs text-brand">You can change your account name in Profile settings once every 7 days.</p>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <Field label="Email">
           <input

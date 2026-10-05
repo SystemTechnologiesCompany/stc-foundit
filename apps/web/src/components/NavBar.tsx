@@ -74,7 +74,7 @@ export default function NavBar() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/70 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
       <nav className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 sm:px-6">
-        <Link href="/" className="flex items-center gap-2 font-semibold text-lg">
+        <Link href={displayName ? "/reports" : "/"} className="flex items-center gap-2 font-semibold text-lg">
           <img src="/logo.png" alt="STC" className="h-10 w-10 object-contain" />
           <span className="text-gradient-brand">STC FoundIt</span>
         </Link>
@@ -82,6 +82,7 @@ export default function NavBar() {
           {!checked ? null : displayName ? (
             <>
               <Link href="/reports" className="text-muted nav-link-glow">Browse</Link>
+              <Link href="/news" className="text-muted nav-link-glow">News</Link>
               <Link href="/report/lost" className="text-muted nav-link-glow">Report lost</Link>
               <Link href="/report/found" className="text-muted nav-link-glow">Report found</Link>
               <div className="flex items-center gap-3 border-l border-border pl-4">
@@ -97,6 +98,7 @@ export default function NavBar() {
                 )}
               </Link>
               <span className="text-muted">Hi, {displayName}</span>
+              <Link href="/account" className="text-muted nav-link-glow">Profile</Link>
               <button
                 onClick={handleSignOut}
                 className="rounded-md border border-border px-3 py-1.5 font-medium hover:bg-surface"
