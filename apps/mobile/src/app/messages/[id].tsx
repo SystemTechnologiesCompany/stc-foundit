@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { File } from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
-import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { I18nText as Text, I18nTextInput as TextInput } from "../../components/LocalizedText";
 import type { Message } from "@stc-foundit/shared";
-import { Eyebrow, MessageBanner, Screen } from "../../components/ui";
+import { AppIcon, Eyebrow, MessageBanner, Screen } from "../../components/ui";
 import { theme } from "../../constants/theme";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../providers/AuthProvider";
@@ -120,7 +121,7 @@ export default function ConversationScreen() {
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={5}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.back}><Text style={styles.backGlyph}>‹</Text></Pressable>
-          <View style={styles.headAvatar}><Text style={styles.headAvatarGlyph}>✦</Text></View>
+          <View style={styles.headAvatar}><AppIcon name="messages" size={20} /></View>
           <View style={styles.headCopy}><Text style={styles.title} numberOfLines={1}>{title}</Text><View style={styles.privateRow}><View style={styles.privateDot} /><Text style={styles.privateText}>PRIVATE CAMPUS CHAT</Text></View></View>
           <Pressable onPress={() => router.push("/(tabs)/inbox")} style={styles.more}><Text style={styles.moreGlyph}>···</Text></Pressable>
         </View>
@@ -128,7 +129,7 @@ export default function ConversationScreen() {
         <ScrollView ref={scroll} contentContainerStyle={styles.messages} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <View style={styles.day}><View style={styles.dayLine} /><Eyebrow>YOUR CONVERSATION</Eyebrow><View style={styles.dayLine} /></View>
           {loading ? <Text style={styles.emptyText}>Loading your private chat…</Text> : null}
-          {!loading && messages.length === 0 ? <View style={styles.firstMessage}><View style={styles.firstIcon}><Text style={styles.firstIconGlyph}>✉</Text></View><Text style={styles.firstTitle}>Start with a kind hello.</Text><Text style={styles.firstCopy}>Share the report detail you’re asking about and take it from there.</Text></View> : null}
+          {!loading && messages.length === 0 ? <View style={styles.firstMessage}><View style={styles.firstIcon}><AppIcon name="messages" size={23} /></View><Text style={styles.firstTitle}>Start with a kind hello.</Text><Text style={styles.firstCopy}>Share the report detail you’re asking about and take it from there.</Text></View> : null}
           {messages.map((message) => {
             const mine = message.sender_id === user?.id;
             return <View key={message.id} style={[styles.messageRow, mine ? styles.mineRow : styles.theirsRow]}><View style={[styles.bubble, mine ? styles.mineBubble : styles.theirsBubble]}>{message.imageUrl ? <Image source={{ uri: message.imageUrl }} style={photoStyles.messageImage} accessibilityLabel="Photo shared in this conversation" /> : null}{message.content !== "Photo" || !message.attachment_path ? <Text style={[styles.bubbleText, mine && styles.mineText]}>{message.content}</Text> : null}<Text style={[styles.messageTime, mine && styles.mineTime]}>{new Date(message.created_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</Text></View></View>;

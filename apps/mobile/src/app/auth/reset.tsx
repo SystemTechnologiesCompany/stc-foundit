@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Linking from "expo-linking";
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from "react-native";
+import { I18nText as Text } from "../../components/LocalizedText";
 import { Button, Eyebrow, MessageBanner, Screen, TextField } from "../../components/ui";
 import { theme } from "../../constants/theme";
 import { supabase } from "../../lib/supabase";

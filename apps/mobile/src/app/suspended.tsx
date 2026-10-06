@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { I18nText as Text } from "../components/LocalizedText";
 import { Button, Eyebrow, Screen } from "../components/ui";
 import { theme } from "../constants/theme";
 import { supabase } from "../lib/supabase";

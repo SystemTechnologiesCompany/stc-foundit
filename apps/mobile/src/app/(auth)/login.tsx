@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, router } from "expo-router";
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { I18nText as Text } from "../../components/LocalizedText";
+import { LanguageDropdown } from "../../components/LanguageDropdown";
 import * as Linking from "expo-linking";
 import { BrandLockup, Button, Eyebrow, MessageBanner, Panel, Screen, TextField } from "../../components/ui";
 import { theme } from "../../constants/theme";
@@ -59,7 +61,7 @@ export default function LoginScreen() {
     <Screen>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={0}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"} showsVerticalScrollIndicator={false}>
-          <BrandLockup />
+          <View style={styles.brandRow}><BrandLockup /><LanguageDropdown /></View>
           <View style={styles.heading}>
             <Eyebrow>GOOD TO HAVE YOU BACK</Eyebrow>
             <Text style={styles.title}>Your campus{`\n`}community is here.</Text>
@@ -88,6 +90,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   content: { flexGrow: 1, paddingHorizontal: 24, paddingTop: 20, paddingBottom: 30, justifyContent: "center", gap: 28 },
+  brandRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8 },
   heading: { gap: 12, marginTop: 6 },
   title: { color: theme.colors.text, fontSize: 36, lineHeight: 40, fontWeight: "900", letterSpacing: -1.3 },
   subtitle: { color: theme.colors.muted, fontSize: 14, lineHeight: 21, maxWidth: 310 },

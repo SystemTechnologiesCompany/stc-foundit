@@ -1,22 +1,14 @@
 import type { PropsWithChildren, ReactNode } from "react";
-import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  type TextInputProps,
-  View,
-  type ViewStyle,
-} from "react-native";
+import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, type TextInputProps, type ColorValue, View, type ViewStyle } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { I18nText as Text, I18nTextInput as TextInput } from "./LocalizedText";
+import { useLanguage } from "../providers/LanguageProvider";
 import { theme, type Tone } from "../constants/theme";
 
 export function Screen({ children, style }: PropsWithChildren<{ style?: ViewStyle }>) {
+  const { language } = useLanguage();
   return (
-    <SafeAreaView style={[styles.safe, style]} edges={["top", "left", "right"]}>
+    <SafeAreaView style={[styles.safe, { direction: language === "ar" ? "rtl" : "ltr" }, style]} edges={["top", "left", "right"]}>
       {children}
     </SafeAreaView>
   );
@@ -56,6 +48,21 @@ export function BrandLockup({ compact = false }: { compact?: boolean }) {
       </View>
     </View>
   );
+}
+
+const appIconSources = {
+  messages: require("../../assets/nav-messages.png"),
+  news: require("../../assets/nav-news.png"),
+  account: require("../../assets/nav-you.png"),
+  notifications: require("../../assets/nav-notifications.png"),
+};
+
+export function AppIcon({ name, color = theme.colors.brand, size = 20 }: {
+  name: keyof typeof appIconSources;
+  color?: ColorValue;
+  size?: number;
+}) {
+  return <Image source={appIconSources[name]} resizeMode="contain" style={{ width: size, height: size, tintColor: color }} />;
 }
 
 export function Eyebrow({ children, color }: PropsWithChildren<{ color?: string }>) {
@@ -160,10 +167,10 @@ export function LoadingView({ label = "Getting things ready…" }: { label?: str
   );
 }
 
-export function EmptyState({ icon, title, body, action }: { icon: string; title: string; body: string; action?: ReactNode }) {
+export function EmptyState({ icon, title, body, action }: { icon: ReactNode; title: string; body: string; action?: ReactNode }) {
   return (
     <View style={styles.empty}>
-      <View style={styles.emptyIcon}><Text style={styles.emptyIconText}>{icon}</Text></View>
+      <View style={styles.emptyIcon}>{typeof icon === "string" ? <Text style={styles.emptyIconText}>{icon}</Text> : icon}</View>
       <Text style={styles.emptyTitle}>{title}</Text>
       <Text style={styles.emptyBody}>{body}</Text>
       {action ? <View style={styles.emptyAction}>{action}</View> : null}

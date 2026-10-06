@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
+import { LanguageSelect } from "@/components/LanguageProvider";
 
 export default function NavBar() {
   const supabase = createClient();
@@ -79,6 +80,7 @@ export default function NavBar() {
           <span className="text-gradient-brand">STC FoundIt</span>
         </Link>
         <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 text-sm">
+          <LanguageSelect />
           {!checked ? null : displayName ? (
             <>
               <Link href="/reports" className="text-muted nav-link-glow">Browse</Link>

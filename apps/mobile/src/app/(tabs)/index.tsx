@@ -1,10 +1,12 @@
 import { useCallback, useState } from "react";
 import { router, useFocusEffect } from "expo-router";
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Image, Pressable, RefreshControl, ScrollView, StyleSheet, View } from "react-native";
+import { I18nText as Text, I18nTextInput as TextInput } from "../../components/LocalizedText";
 import { BrandLockup, Button, EmptyState, Eyebrow, MessageBanner, Pill, Screen } from "../../components/ui";
 import { ReportCard, type MobileReport } from "../../components/ReportCard";
 import { categoryLabels, theme } from "../../constants/theme";
 import { friendlyError, loadReports } from "../../lib/reports";
+import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../providers/AuthProvider";
 
 const filters = ["All", "Lost", "Found"] as const;
@@ -19,6 +21,7 @@ export default function DiscoverScreen() {
   const [category, setCategory] = useState("all");
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   const refresh = useCallback(async (pull = false) => {
     if (pull) setRefreshing(true); else setLoading(true);
@@ -29,6 +32,20 @@ export default function DiscoverScreen() {
   }, []);
 
   useFocusEffect(useCallback(() => { void refresh(); }, [refresh]));
+
+  useFocusEffect(useCallback(() => {
+    let active = true;
+    async function loadAvatar() {
+      if (!user) { setAvatarUrl(null); return; }
+      const { data: profile } = await supabase.from("profiles").select("avatar_path").eq("id", user.id).maybeSingle();
+      if (!active) return;
+      if (!profile?.avatar_path) { setAvatarUrl(null); return; }
+      const { data } = await supabase.storage.from("profile-photos").createSignedUrl(profile.avatar_path, 30 * 60);
+      if (active) setAvatarUrl(data?.signedUrl ?? null);
+    }
+    void loadAvatar();
+    return () => { active = false; };
+  }, [user]));
 
   const shown = reports.filter((report) => {
     const typeMatch = type === "All" || report.type === type.toLowerCase();
@@ -43,7 +60,7 @@ export default function DiscoverScreen() {
       <ScrollView contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => refresh(true)} tintColor={theme.colors.brand} colors={[theme.colors.brand]} />} showsVerticalScrollIndicator={false}>
         <View style={styles.topRow}>
           <BrandLockup compact />
-          <Pressable onPress={() => router.push("/(tabs)/profile")} style={styles.avatar}><Text style={styles.avatarText}>{firstName.slice(0, 1).toUpperCase()}</Text></Pressable>
+          <Pressable onPress={() => router.push("/(tabs)/profile")} style={styles.avatar} accessibilityRole="button" accessibilityLabel="Open your profile">{avatarUrl ? <Image source={{ uri: avatarUrl }} style={styles.avatarImage} /> : <Text style={styles.avatarText}>{firstName.slice(0, 1).toUpperCase()}</Text>}</Pressable>
         </View>
 
         <View style={styles.greeting}>
@@ -99,7 +116,7 @@ export default function DiscoverScreen() {
 
 const styles = StyleSheet.create({
   content: { paddingHorizontal: 19, paddingTop: 10, paddingBottom: 32, gap: 21 },
-  topRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" }, avatar: { width: 39, height: 39, borderRadius: 15, backgroundColor: theme.colors.panelRaised, borderWidth: 1, borderColor: theme.colors.line, alignItems: "center", justifyContent: "center" }, avatarText: { color: theme.colors.brand, fontSize: 15, fontWeight: "900" },
+  topRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" }, avatar: { width: 39, height: 39, borderRadius: 15, overflow: "hidden", backgroundColor: theme.colors.panelRaised, borderWidth: 1, borderColor: theme.colors.line, alignItems: "center", justifyContent: "center" }, avatarImage: { width: "100%", height: "100%" }, avatarText: { color: theme.colors.brand, fontSize: 15, fontWeight: "900" },
   greeting: { gap: 6, paddingTop: 3 }, hello: { color: theme.colors.text, fontSize: 29, fontWeight: "900", letterSpacing: -0.9 }, wave: { color: theme.colors.brand, fontSize: 22 }, intro: { color: theme.colors.muted, fontSize: 13 },
   hero: { padding: 19, borderRadius: 24, overflow: "hidden", backgroundColor: "#142319", borderWidth: 1, borderColor: "#324A35", gap: 12 }, heroGlow: { position: "absolute", width: 210, height: 210, borderRadius: 110, top: -120, right: -48, backgroundColor: "#324F2A", opacity: 0.42 }, heroTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" }, heroTag: { flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 9, paddingVertical: 7, borderRadius: 20, backgroundColor: "#1D3321" }, liveDot: { width: 6, height: 6, borderRadius: 5, backgroundColor: theme.colors.brand }, heroTagText: { color: theme.colors.brand, fontSize: 8, fontWeight: "900", letterSpacing: 1 }, heroSpark: { color: "#8FC363", fontSize: 23 },
   heroTitle: { color: theme.colors.text, fontSize: 25, lineHeight: 29, fontWeight: "900", letterSpacing: -0.8 }, heroAccent: { color: theme.colors.brand }, heroCopy: { color: "#B5C2B1", fontSize: 11 }, heroActions: { flexDirection: "row", gap: 9, marginTop: 3 }, lostButton: { minHeight: 44, flex: 1, borderRadius: 13, backgroundColor: theme.colors.brand, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingHorizontal: 8 }, lostText: { color: theme.colors.bg, fontSize: 11, fontWeight: "900" }, lostIcon: { color: theme.colors.bg, fontSize: 18, fontWeight: "900" }, foundButton: { minHeight: 44, flex: 1, borderRadius: 13, borderWidth: 1, borderColor: "#4D694B", backgroundColor: "#1A2A1E", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingHorizontal: 8 }, foundText: { color: theme.colors.text, fontSize: 11, fontWeight: "800" }, foundIcon: { color: theme.colors.brand, fontSize: 15, fontWeight: "900" }, heroFooter: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 1 }, footerIcon: { color: theme.colors.brand, fontSize: 12 }, footerText: { color: "#91A28F", fontSize: 9, flex: 1 }, footerHeart: { color: "#E8A286", fontSize: 11 },

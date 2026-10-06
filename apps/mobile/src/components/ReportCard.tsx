@@ -1,4 +1,5 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, View } from "react-native";
+import { I18nText as Text } from "./LocalizedText";
 import { router } from "expo-router";
 import { categoryEmoji, categoryLabels, theme } from "../constants/theme";
 import type { Report } from "@stc-foundit/shared";

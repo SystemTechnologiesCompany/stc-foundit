@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, router } from "expo-router";
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { I18nText as Text } from "../../components/LocalizedText";
+import { LanguageDropdown } from "../../components/LanguageDropdown";
 import * as Linking from "expo-linking";
 import { BrandLockup, Button, Eyebrow, MessageBanner, Panel, Screen, TextField } from "../../components/ui";
 import { theme } from "../../constants/theme";
@@ -53,7 +55,7 @@ export default function SignupScreen() {
     <Screen>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={0}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"} showsVerticalScrollIndicator={false}>
-          <BrandLockup />
+          <View style={styles.brandRow}><BrandLockup /><LanguageDropdown /></View>
           <View style={styles.heading}>
             <Eyebrow>JOIN YOUR CAMPUS COMMUNITY</Eyebrow>
             <Text style={styles.title}>Let’s get{`\n`}you connected.</Text>
@@ -80,7 +82,7 @@ export default function SignupScreen() {
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1 }, content: { flexGrow: 1, paddingHorizontal: 24, paddingTop: 18, paddingBottom: 30, justifyContent: "center", gap: 22 },
+  flex: { flex: 1 }, content: { flexGrow: 1, paddingHorizontal: 24, paddingTop: 18, paddingBottom: 30, justifyContent: "center", gap: 22 }, brandRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8 },
   heading: { gap: 10, marginTop: 4 }, title: { color: theme.colors.text, fontSize: 35, lineHeight: 39, fontWeight: "900", letterSpacing: -1.25 }, subtitle: { color: theme.colors.muted, fontSize: 13, lineHeight: 20 },
   panel: { gap: 14, padding: 17 }, privacy: { color: theme.colors.subtle, textAlign: "center", fontSize: 10, lineHeight: 15 },
   joinRow: { flexDirection: "row", gap: 6, justifyContent: "center" }, joinText: { color: theme.colors.muted, fontSize: 13 }, joinLink: { color: theme.colors.brand, fontSize: 13, fontWeight: "800" },

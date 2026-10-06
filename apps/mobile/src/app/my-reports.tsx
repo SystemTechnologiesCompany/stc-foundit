@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { router, useFocusEffect } from "expo-router";
-import { RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
+import { I18nText as Text } from "../components/LocalizedText";
 import { Button, EmptyState, Eyebrow, MessageBanner, Screen } from "../components/ui";
 import { ReportCard, type MobileReport } from "../components/ReportCard";
 import { theme } from "../constants/theme";

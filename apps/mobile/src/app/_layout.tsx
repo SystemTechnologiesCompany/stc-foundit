@@ -6,6 +6,7 @@ import { StatusBar } from "expo-status-bar";
 import type * as Notifications from "expo-notifications";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider } from "../providers/AuthProvider";
+import { LanguageProvider } from "../providers/LanguageProvider";
 import { AppGate } from "../components/AppGate";
 import { theme } from "../constants/theme";
 
@@ -49,23 +50,25 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
-          <StatusBar style="light" />
-          <AppGate />
-          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.colors.bg }, animation: "fade_from_bottom" }}>
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="verify" />
-            <Stack.Screen name="suspended" />
-            <Stack.Screen name="auth/confirm" />
-            <Stack.Screen name="auth/reset" />
-            <Stack.Screen name="report/new" options={{ presentation: "modal", animation: "slide_from_bottom" }} />
-            <Stack.Screen name="reports/[id]" options={{ animation: "slide_from_right" }} />
-            <Stack.Screen name="messages/[id]" options={{ animation: "slide_from_right" }} />
-          </Stack>
-        </View>
-      </AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
+            <StatusBar style="light" />
+            <AppGate />
+            <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.colors.bg }, animation: "fade_from_bottom" }}>
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="verify" />
+              <Stack.Screen name="suspended" />
+              <Stack.Screen name="auth/confirm" />
+              <Stack.Screen name="auth/reset" />
+              <Stack.Screen name="report/new" options={{ presentation: "modal", animation: "slide_from_bottom" }} />
+              <Stack.Screen name="reports/[id]" options={{ animation: "slide_from_right" }} />
+              <Stack.Screen name="messages/[id]" options={{ animation: "slide_from_right" }} />
+            </Stack>
+          </View>
+        </AuthProvider>
+      </LanguageProvider>
     </SafeAreaProvider>
   );
 }

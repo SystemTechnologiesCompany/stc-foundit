@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
-import { Image, Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, Share, StyleSheet, View } from "react-native";
+import { I18nText as Text } from "../../components/LocalizedText";
 import { Button, Eyebrow, MessageBanner, Pill, Screen } from "../../components/ui";
 import { categoryEmoji, categoryLabels, theme } from "../../constants/theme";
 import { friendlyError } from "../../lib/reports";

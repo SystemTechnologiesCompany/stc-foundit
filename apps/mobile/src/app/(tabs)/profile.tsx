@@ -2,8 +2,10 @@ import { useCallback, useState } from "react";
 import { router, useFocusEffect } from "expo-router";
 import { File } from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
-import { Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
-import { BrandLockup, Button, Divider, Eyebrow, MessageBanner, Screen } from "../../components/ui";
+import { Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { I18nText as Text, I18nTextInput as TextInput } from "../../components/LocalizedText";
+import { AppIcon, BrandLockup, Button, Divider, Eyebrow, MessageBanner, Screen } from "../../components/ui";
+import { LanguageDropdown } from "../../components/LanguageDropdown";
 import { theme } from "../../constants/theme";
 import { supabase } from "../../lib/supabase";
 import { disablePushNotifications, enablePushNotifications, removeThisDevicePushToken } from "../../lib/pushNotifications";
@@ -134,13 +136,14 @@ export default function ProfileScreen() {
             <TextInput value={nameDraft} onChangeText={setNameDraft} maxLength={50} editable={!nameLocked && !nameBusy} placeholder="Your account name" placeholderTextColor={theme.colors.subtle} style={styles.nameInput} />
             <Text style={styles.rowHint}>{nameLocked && nextNameChange ? `You can change it again on ${nextNameChange.toLocaleDateString()}.` : "You can change your account name once every 7 days."}</Text>
             {!nameLocked ? <Pressable onPress={() => void saveName()} disabled={nameBusy || nameDraft.trim() === name} style={[styles.nameSave, (nameBusy || nameDraft.trim() === name) && styles.nameSaveDisabled]}><Text style={styles.nameSaveText}>{nameBusy ? "Saving…" : "Save account name"}</Text></Pressable> : null}
+            <LanguageDropdown />
           </View>
           <View style={styles.settingsCard}>
-            <Pressable onPress={() => router.push("/(tabs)/inbox")} style={styles.row}><View style={styles.rowIcon}><Text style={styles.rowIconText}>◌</Text></View><View style={styles.rowBody}><Text style={styles.rowTitle}>Messages</Text><Text style={styles.rowHint}>Your private conversations</Text></View><Text style={styles.arrow}>›</Text></Pressable>
+            <Pressable onPress={() => router.push("/(tabs)/inbox")} style={styles.row}><View style={styles.rowIcon}><AppIcon name="messages" size={19} /></View><View style={styles.rowBody}><Text style={styles.rowTitle}>Messages</Text><Text style={styles.rowHint}>Your private conversations</Text></View><Text style={styles.arrow}>›</Text></Pressable>
             <Divider />
-            <Pressable onPress={togglePushNotifications} disabled={pushBusy} style={styles.row}><View style={styles.rowIcon}><Text style={styles.rowIconText}>♧</Text></View><View style={styles.rowBody}><Text style={styles.rowTitle}>Push notifications</Text><Text style={styles.rowHint}>{pushBusy ? "Updating alerts…" : pushEnabled ? "On · messages and possible matches" : "Get alerts for messages and possible matches"}</Text></View><Text style={styles.pushAction}>{pushEnabled ? "TURN OFF" : "ENABLE"}</Text></Pressable>
+            <Pressable onPress={togglePushNotifications} disabled={pushBusy} style={styles.row}><View style={styles.rowIcon}><AppIcon name="notifications" size={19} /></View><View style={styles.rowBody}><Text style={styles.rowTitle}>Push notifications</Text><Text style={styles.rowHint}>{pushBusy ? "Updating alerts…" : pushEnabled ? "On · messages and possible matches" : "Get alerts for messages and possible matches"}</Text></View><Text style={styles.pushAction}>{pushEnabled ? "TURN OFF" : "ENABLE"}</Text></Pressable>
             <Divider />
-            <Pressable onPress={() => router.push("/my-reports")} style={styles.row}><View style={styles.rowIcon}><Text style={styles.rowIconText}>＋</Text></View><View style={styles.rowBody}><Text style={styles.rowTitle}>Your reports</Text><Text style={styles.rowHint}>You have {reportCount} active report{reportCount === 1 ? "" : "s"}</Text></View><Text style={styles.arrow}>›</Text></Pressable>
+            <Pressable onPress={() => router.push("/my-reports")} style={styles.row}><View style={styles.rowIcon}><Text style={styles.rowIconText}>＋</Text></View><View style={styles.rowBody}><Text style={styles.rowTitle}>Your reports</Text><Text style={styles.rowHint}>{`You have ${reportCount} active report${reportCount === 1 ? "" : "s"}`}</Text></View><Text style={styles.arrow}>›</Text></Pressable>
           </View>
         </View>
         <View style={styles.privacy}><Text style={styles.privacyGlyph}>◇</Text><View style={{ flex: 1 }}><Text style={styles.privacyTitle}>Your details are yours</Text><Text style={styles.privacyText}>Your email isn’t shown to other members. Conversations stay between the people involved.</Text></View></View>

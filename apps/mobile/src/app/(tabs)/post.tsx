@@ -1,5 +1,6 @@
 import { router } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { I18nText as Text } from "../../components/LocalizedText";
 import { Button, Eyebrow, Panel, Screen } from "../../components/ui";
 import { theme } from "../../constants/theme";
 

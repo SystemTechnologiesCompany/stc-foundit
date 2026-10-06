@@ -35,6 +35,22 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   background-image: radial-gradient(ellipse at 50% -20%, rgba(34, 197, 94, 0.1), transparent 45%);
 }
+html[dir="rtl"] body {
+  direction: rtl;
+}
+html[dir="rtl"] .text-left {
+  text-align: right;
+}
+html[dir="rtl"] .text-right {
+  text-align: left;
+}
+html[dir="rtl"] input[type="email"],
+html[dir="rtl"] input[type="password"],
+html[dir="rtl"] input[type="url"],
+html[dir="rtl"] input[type="tel"] {
+  direction: ltr;
+  text-align: left;
+}
 .text-gradient-brand {
   background: linear-gradient(90deg, #16a34a, #ffffff, #4ade80, #ffffff, #16a34a);
   background-size: 300% 100%;
@@ -92,6 +108,75 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
   color: var(--brand);
   text-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
 }
+.language-select { position: relative; z-index: 80; }
+.language-trigger {
+  display: inline-flex;
+  min-height: 2.45rem;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid rgba(74, 222, 128, 0.24);
+  border-radius: 0.8rem;
+  background: linear-gradient(145deg, rgba(17, 26, 20, 0.98), rgba(9, 17, 12, 0.98));
+  padding: 0.42rem 0.65rem;
+  color: var(--foreground);
+  font-size: 0.72rem;
+  font-weight: 700;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+.language-trigger:hover, .language-trigger[aria-expanded="true"] {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1), 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+.language-globe { width: 1rem; height: 1rem; flex: 0 0 auto; stroke: var(--brand); stroke-width: 1.6; }
+.language-trigger-title { color: var(--muted); }
+.language-current {
+  border: 1px solid rgba(74, 222, 128, 0.18);
+  border-radius: 999px;
+  background: rgba(74, 222, 128, 0.1);
+  padding: 0.19rem 0.45rem;
+  color: var(--brand);
+  line-height: 1;
+}
+.language-chevron { width: 0.8rem; height: 0.8rem; stroke: var(--muted); stroke-width: 1.7; transition: transform 180ms ease; }
+.language-chevron-open { transform: rotate(180deg); }
+.language-menu {
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  inset-inline-end: 0;
+  z-index: 100;
+  width: 14.25rem;
+  overflow: hidden;
+  border: 1px solid rgba(74, 222, 128, 0.24);
+  border-radius: 1rem;
+  background: linear-gradient(145deg, #121d16, #0b120e 80%);
+  padding: 0.45rem;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.55), 0 0 24px rgba(34, 197, 94, 0.08);
+  animation: language-menu-enter 150ms ease-out both;
+}
+.language-menu-heading { margin: 0; padding: 0.55rem 0.65rem 0.45rem; color: var(--muted); font-size: 0.63rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+.language-option {
+  display: flex;
+  width: 100%;
+  min-height: 3.35rem;
+  align-items: center;
+  gap: 0.7rem;
+  border: 1px solid transparent;
+  border-radius: 0.72rem;
+  background: transparent;
+  padding: 0.45rem 0.6rem;
+  color: var(--foreground);
+  text-align: start;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+.language-option:hover { transform: translateY(-1px); border-color: rgba(74, 222, 128, 0.24); background: rgba(74, 222, 128, 0.07); }
+.language-option-selected { border-color: rgba(74, 222, 128, 0.3); background: rgba(74, 222, 128, 0.1); }
+.language-code { display: grid; width: 2rem; height: 2rem; flex: 0 0 auto; place-items: center; border: 1px solid rgba(74, 222, 128, 0.2); border-radius: 0.65rem; background: rgba(74, 222, 128, 0.1); color: var(--brand); font-size: 0.62rem; font-weight: 900; letter-spacing: 0.04em; }
+.language-code-ar { font-size: 0.95rem; }
+.language-option-name { display: grid; flex: 1; gap: 0.15rem; font-size: 0.8rem; font-weight: 800; }
+.language-option-detail { color: var(--muted); font-size: 0.62rem; font-weight: 500; }
+.language-check { color: var(--brand); font-size: 0.9rem; font-weight: 900; }
+@keyframes language-menu-enter { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .language-menu { animation-duration: 0.01ms; } }
 .filter-chip {
   min-height: 2.4rem;
   border: 1px solid var(--border);

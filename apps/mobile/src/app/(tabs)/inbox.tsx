@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { router, useFocusEffect } from "expo-router";
-import { Animated, Easing, Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
-import { EmptyState, Eyebrow, MessageBanner, Screen } from "../../components/ui";
+import { Animated, Easing, Modal, Pressable, RefreshControl, ScrollView, StyleSheet, View } from "react-native";
+import { I18nText as Text } from "../../components/LocalizedText";
+import { AppIcon, EmptyState, Eyebrow, MessageBanner, Screen } from "../../components/ui";
 import { formatAge } from "../../components/ReportCard";
 import { theme } from "../../constants/theme";
 import { friendlyError } from "../../lib/reports";
@@ -137,12 +138,12 @@ export default function InboxScreen() {
         <View style={styles.secureNote}><Text style={styles.lock}>◇</Text><Text style={styles.secureText}>Only you and the other member can read these chats.</Text></View>
         {error ? <MessageBanner>{error}</MessageBanner> : null}
         {loading && threads.length === 0 ? <View style={styles.emptyLoading}><Text style={styles.muted}>Loading your conversations…</Text></View> : null}
-        {!loading && !error && threads.length === 0 ? <EmptyState icon="◌" title="Your inbox is a clean slate" body="Found someone’s item? Open their report and say hello. We’ll keep the conversation private." /> : null}
+        {!loading && !error && threads.length === 0 ? <EmptyState icon={<AppIcon name="messages" size={24} />} title="Your inbox is a clean slate" body="Found someone’s item? Open their report and say hello. We’ll keep the conversation private." /> : null}
         <View style={styles.list}>
           {threads.map((thread) => (
             <View key={thread.id} style={styles.thread}>
               <Pressable onPress={() => router.push(`/messages/${thread.id}`)} style={({ pressed }) => [styles.threadMain, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel={`Open conversation about ${thread.title}`}>
-                <View style={styles.avatar}><Text style={styles.avatarGlyph}>✉</Text></View>
+                <View style={styles.avatar}><AppIcon name="messages" size={20} /></View>
                 <View style={styles.threadBody}>
                   <View style={styles.threadTop}><Text style={styles.threadTitle} numberOfLines={1}>{thread.title}</Text><Text style={styles.time}>{formatAge(thread.time)}</Text></View>
                   <Text style={styles.preview} numberOfLines={1}>{thread.preview}</Text>
