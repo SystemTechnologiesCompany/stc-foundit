@@ -23,6 +23,7 @@ export default function ConversationPage() {
   const [content, setContent] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
   const [reportTitle, setReportTitle] = useState("Conversation");
+  const [isAdminThread, setIsAdminThread] = useState(false);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
@@ -41,13 +42,21 @@ export default function ConversationPage() {
       setUserId(currentUserId);
       if (!currentUserId) { setLoading(false); return; }
 
-      const [{ data: convo }, { data: rows, error: messageError }] = await Promise.all([
-        supabase.from("conversations").select("report_id, reports(title)").eq("id", id).single(),
+      const [{ data: convo }, { data: rows, error: messageError }, { data: viewerProfile }] = await Promise.all([
+        supabase.from("conversations").select("report_id, admin_recipient_id, reports(title)").eq("id", id).single(),
         supabase.from("messages").select("*").eq("conversation_id", id).order("created_at", { ascending: true }),
+        supabase.from("profiles").select("is_admin").eq("id", currentUserId).maybeSingle(),
       ]);
       if (!active) return;
-      const joined = convo as unknown as { reports?: { title?: string } } | null;
-      setReportTitle(joined?.reports?.title ?? "Conversation");
+      const joined = convo as unknown as { admin_recipient_id?: string | null; reports?: { title?: string } } | null;
+      const supportThread = Boolean(joined?.admin_recipient_id);
+      setIsAdminThread(supportThread);
+      if (supportThread) {
+        if (viewerProfile?.is_admin && joined?.admin_recipient_id) {
+          const { data: recipient } = await supabase.from("profiles").select("display_name").eq("id", joined.admin_recipient_id).maybeSingle();
+          setReportTitle(`Chat with ${recipient?.display_name ?? "member"}`);
+        } else setReportTitle("FoundIt Admin");
+      } else setReportTitle(joined?.reports?.title ?? "Conversation");
       if (messageError) setError(messageError.message);
       const hydrated = await Promise.all(((rows ?? []) as ChatMessage[]).map((message) => withSignedImage(supabase, message)));
       if (!active) return;
@@ -160,7 +169,7 @@ export default function ConversationPage() {
       <div className="shrink-0 border-b border-border py-3 sm:py-4">
         <Link href="/messages" className="text-sm text-muted nav-link-glow">← All conversations</Link>
         <h1 className="mt-1 truncate text-lg font-bold">{reportTitle}</h1>
-        <p className="mt-1 text-[0.62rem] font-bold tracking-[0.15em] text-muted">PRIVATE CAMPUS CHAT</p>
+        <p className="mt-1 text-[0.62rem] font-bold tracking-[0.15em] text-muted">{isAdminThread ? "PRIVATE FOUNDIT SUPPORT CHAT" : "PRIVATE CAMPUS CHAT"}</p>
       </div>
 
       <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain py-4" aria-live="polite">

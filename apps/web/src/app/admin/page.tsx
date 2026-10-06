@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import type { Report } from "@stc-foundit/shared";
 
@@ -18,12 +19,20 @@ interface AdminProfile {
 }
 
 export default function AdminPage() {
+  const router = useRouter();
   const supabase = createClient();
   const [checking, setChecking] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [reports, setReports] = useState<AdminReport[]>([]);
   const [users, setUsers] = useState<AdminProfile[]>([]);
   const [tab, setTab] = useState<"reports" | "users">("reports");
+  const [messageTarget, setMessageTarget] = useState<AdminProfile | null>(null);
+  const [messageDraft, setMessageDraft] = useState("");
+  const [messageBusy, setMessageBusy] = useState(false);
+  const [messageError, setMessageError] = useState("");
+  const [broadcastDraft, setBroadcastDraft] = useState("");
+  const [broadcastBusy, setBroadcastBusy] = useState(false);
+  const [notice, setNotice] = useState("");
 
   useEffect(() => {
     async function load() {
@@ -80,6 +89,43 @@ export default function AdminPage() {
       .update({ is_banned: !currentlyBanned })
       .eq("id", userId);
     loadUsers();
+  }
+
+  async function sendDirectMessage(event: React.FormEvent) {
+    event.preventDefault();
+    if (!messageTarget || !messageDraft.trim() || messageBusy) return;
+    setMessageBusy(true);
+    setMessageError("");
+    const { data: conversationId, error: sendError } = await supabase.rpc("send_admin_message", {
+      p_user_id: messageTarget.id,
+      p_content: messageDraft.trim(),
+    });
+    setMessageBusy(false);
+    if (sendError || !conversationId) {
+      setMessageError(sendError?.message ?? "The message could not be sent.");
+      return;
+    }
+    setMessageTarget(null);
+    setMessageDraft("");
+    router.push(`/messages/${conversationId}`);
+  }
+
+  async function sendBroadcast(event: React.FormEvent) {
+    event.preventDefault();
+    if (!broadcastDraft.trim() || broadcastBusy) return;
+    if (!confirm("Send this message in a private chat to every active member?")) return;
+    setBroadcastBusy(true);
+    setNotice("");
+    const { data: recipientCount, error: sendError } = await supabase.rpc("broadcast_admin_message", {
+      p_content: broadcastDraft.trim(),
+    });
+    setBroadcastBusy(false);
+    if (sendError) {
+      setNotice(`Message not sent: ${sendError.message}`);
+      return;
+    }
+    setBroadcastDraft("");
+    setNotice(`Sent privately to ${recipientCount ?? 0} active members.`);
   }
 
   if (checking) {
@@ -158,7 +204,19 @@ export default function AdminPage() {
       )}
 
       {tab === "users" && (
-        <div className="mt-6 space-y-2">
+        <div className="mt-6 space-y-5">
+          <form onSubmit={sendBroadcast} className="space-y-3 rounded-2xl border border-brand/20 bg-surface p-4 sm:p-5">
+            <div>
+              <h2 className="font-semibold">Message all active members</h2>
+              <p className="mt-1 text-xs leading-5 text-muted">Each person receives a private message in FoundIt and can reply. Suspended accounts and admins are excluded.</p>
+            </div>
+            <textarea required maxLength={2000} value={broadcastDraft} onChange={(event) => setBroadcastDraft(event.target.value)} rows={4} placeholder="Write an announcement or important warning…" className="w-full resize-y rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted/70 focus:border-brand" />
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <span className="text-xs text-muted">{broadcastDraft.length}/2000</span>
+              <button type="submit" disabled={broadcastBusy || !broadcastDraft.trim()} className="rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-black transition hover:bg-brand-hover disabled:opacity-50">{broadcastBusy ? "Sending…" : "Send to all active members"}</button>
+            </div>
+            {notice && <p role="status" className="text-sm text-brand">{notice}</p>}
+          </form>
           {users.map((u) => (
             <div
               key={u.id}
@@ -183,20 +241,47 @@ export default function AdminPage() {
                 )}
               </div>
               {!u.is_admin && (
-                <button
-                  onClick={() => toggleBan(u.id, u.is_banned)}
-                  className={`shrink-0 rounded-md border px-3 py-1.5 text-sm ${
-                    u.is_banned
-                      ? "border-border hover:bg-background"
-                      : "border-danger text-danger hover:bg-danger/10"
-                  }`}
-                >
-                  {u.is_banned ? "Unban" : "Ban"}
-                </button>
+                <div className="flex shrink-0 gap-2">
+                  <button
+                    disabled={u.is_banned}
+                    onClick={() => { setMessageError(""); setMessageDraft(""); setMessageTarget(u); }}
+                    className="rounded-md border border-brand/40 px-3 py-1.5 text-sm text-brand hover:bg-brand/10 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Message
+                  </button>
+                  <button
+                    onClick={() => toggleBan(u.id, u.is_banned)}
+                    className={`rounded-md border px-3 py-1.5 text-sm ${
+                      u.is_banned
+                        ? "border-border hover:bg-background"
+                        : "border-danger text-danger hover:bg-danger/10"
+                    }`}
+                  >
+                    {u.is_banned ? "Unban" : "Ban"}
+                  </button>
+                </div>
               )}
             </div>
           ))}
           {users.length === 0 && <p className="text-muted">No users yet.</p>}
+        </div>
+      )}
+
+      {messageTarget && (
+        <div className="stc-dialog-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget && !messageBusy) setMessageTarget(null); }}>
+          <section role="dialog" aria-modal="true" aria-labelledby="admin-message-title" className="stc-dialog-card w-[min(100%,30rem)] rounded-[1.6rem] border border-[#344936] bg-[#101b14] p-5 shadow-2xl sm:p-6">
+            <p className="eyebrow">PRIVATE MEMBER MESSAGE</p>
+            <h2 id="admin-message-title" className="mt-2 text-xl font-black">Message {messageTarget.display_name}</h2>
+            <p className="mt-2 text-sm leading-6 text-muted">They’ll receive this in their FoundIt Messages inbox and can reply to you.</p>
+            <form onSubmit={sendDirectMessage} className="mt-4 space-y-3">
+              <textarea required autoFocus maxLength={2000} value={messageDraft} onChange={(event) => setMessageDraft(event.target.value)} rows={5} placeholder="Write a warning or message…" className="w-full resize-y rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted/70 focus:border-brand" />
+              <div className="flex justify-between text-xs text-muted"><span>{messageError ? <span role="alert" className="text-danger">{messageError}</span> : "Private conversation · replies go to Messages"}</span><span>{messageDraft.length}/2000</span></div>
+              <div className="flex justify-end gap-2 pt-1">
+                <button type="button" disabled={messageBusy} onClick={() => setMessageTarget(null)} className="rounded-xl border border-border px-4 py-2.5 text-sm font-semibold text-muted hover:bg-background disabled:opacity-50">Cancel</button>
+                <button type="submit" disabled={messageBusy || !messageDraft.trim()} className="rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-black hover:bg-brand-hover disabled:opacity-50">{messageBusy ? "Sending…" : "Send message"}</button>
+              </div>
+            </form>
+          </section>
         </div>
       )}
     </div>

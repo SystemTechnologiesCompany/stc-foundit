@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase";
 interface ConversationRow {
   id: string;
   report_title: string;
+  is_admin_thread: boolean;
 }
 
 async function removeConversationImages(supabase: ReturnType<typeof createClient>, conversationId: string) {
@@ -52,16 +53,25 @@ export default function MessagesInboxPage() {
     async function load() {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) { if (active) setLoading(false); return; }
+      const { data: viewerProfile } = await supabase.from("profiles").select("is_admin").eq("id", userData.user.id).maybeSingle();
       const { data, error: queryError } = await supabase
         .from("conversation_members")
-        .select("conversation_id, conversations(id, reports(title))")
+        .select("conversation_id, conversations(id, report_id, admin_recipient_id, reports(title))")
         .eq("user_id", userData.user.id);
       if (!active) return;
       if (queryError) { setError(queryError.message); setLoading(false); return; }
-      const rows: ConversationRow[] = (data ?? []).map((row) => {
-        const convo = row as unknown as { conversations?: { id: string; reports?: { title?: string } } };
-        return { id: convo.conversations?.id ?? "", report_title: convo.conversations?.reports?.title ?? "Conversation" };
+      const rawRows = (data ?? []).map((row) => {
+        const convo = row as unknown as { conversations?: { id: string; report_id: string | null; admin_recipient_id: string | null; reports?: { title?: string } } };
+        return { id: convo.conversations?.id ?? "", report_title: convo.conversations?.reports?.title ?? "Conversation", admin_recipient_id: convo.conversations?.admin_recipient_id ?? null };
       });
+      const recipientIds = viewerProfile?.is_admin ? [...new Set(rawRows.map((row) => row.admin_recipient_id).filter((id): id is string => Boolean(id)))] : [];
+      const { data: recipients } = recipientIds.length ? await supabase.from("profiles").select("id, display_name").in("id", recipientIds) : { data: [] as { id: string; display_name: string }[] };
+      const recipientNames = new Map((recipients ?? []).map((profile) => [profile.id, profile.display_name]));
+      const rows: ConversationRow[] = rawRows.map((row) => ({
+        id: row.id,
+        is_admin_thread: Boolean(row.admin_recipient_id),
+        report_title: row.admin_recipient_id ? (viewerProfile?.is_admin ? recipientNames.get(row.admin_recipient_id) ?? "Member conversation" : "FoundIt Admin") : row.report_title,
+      }));
       setConversations(rows.filter((row) => row.id));
       setLoading(false);
     }
@@ -101,7 +111,7 @@ export default function MessagesInboxPage() {
           <div key={conversation.id} className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-3 transition hover:border-brand/50">
             <Link href={`/messages/${conversation.id}`} className="min-w-0 flex-1 rounded-xl p-2 focus-visible:outline-brand">
               <span className="block truncate font-semibold">{conversation.report_title}</span>
-              <span className="mt-1 block text-xs text-muted">Private conversation · Open chat →</span>
+              <span className="mt-1 block text-xs text-muted">{conversation.is_admin_thread ? "Private FoundIt support chat · Open chat →" : "Private conversation · Open chat →"}</span>
             </Link>
             <button type="button" onClick={() => { setError(""); setConfirm(conversation); }} aria-label={`Delete conversation about ${conversation.report_title}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-danger/25 bg-danger/10 text-xl text-danger transition hover:bg-danger/20">×</button>
           </div>

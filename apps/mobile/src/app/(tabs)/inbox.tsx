@@ -8,7 +8,7 @@ import { theme } from "../../constants/theme";
 import { friendlyError } from "../../lib/reports";
 import { supabase } from "../../lib/supabase";
 
-type Thread = { id: string; title: string; reportId: string; preview: string; time: string; unread?: boolean };
+type Thread = { id: string; title: string; reportId: string | null; preview: string; time: string; unread?: boolean; isAdminThread?: boolean };
 
 async function removeConversationImages(conversationId: string) {
   const bucket = supabase.storage.from("message-images");
@@ -56,17 +56,23 @@ export default function InboxScreen() {
     setError("");
     const { data: authData } = await supabase.auth.getUser();
     if (!authData.user) { setLoading(false); setRefreshing(false); return; }
-    const { data, error: queryError } = await supabase.from("conversation_members")
-      .select("conversation_id, last_read_at, conversations(id, report_id, created_at, reports(title))")
-      .eq("user_id", authData.user.id);
+    const [{ data, error: queryError }, { data: viewerProfile }] = await Promise.all([
+      supabase.from("conversation_members")
+        .select("conversation_id, last_read_at, conversations(id, report_id, admin_recipient_id, created_at, reports(title))")
+        .eq("user_id", authData.user.id),
+      supabase.from("profiles").select("is_admin").eq("id", authData.user.id).maybeSingle(),
+    ]);
     if (queryError) { setError(friendlyError(queryError.message)); setLoading(false); setRefreshing(false); return; }
-    const memberships = (data ?? []) as unknown as { conversation_id: string; last_read_at?: string; conversations: { id: string; report_id: string; created_at: string; reports?: { title?: string } | null } | null }[];
+    const memberships = (data ?? []) as unknown as { conversation_id: string; last_read_at?: string; conversations: { id: string; report_id: string | null; admin_recipient_id?: string | null; created_at: string; reports?: { title?: string } | null } | null }[];
+    const recipientIds = viewerProfile?.is_admin ? [...new Set(memberships.map((item) => item.conversations?.admin_recipient_id).filter((id): id is string => Boolean(id)))] : [];
+    const { data: recipientProfiles } = recipientIds.length ? await supabase.from("profiles").select("id, display_name").in("id", recipientIds) : { data: [] as { id: string; display_name: string }[] };
+    const recipientNames = new Map((recipientProfiles ?? []).map((profile) => [profile.id, profile.display_name]));
     const built = await Promise.all(memberships.filter((item) => item.conversations?.id).map(async (item) => {
       const convo = item.conversations!;
       const { data: messages } = await supabase.from("messages").select("content, sender_id, created_at")
         .eq("conversation_id", convo.id).order("created_at", { ascending: false }).limit(1);
       const latest = messages?.[0];
-      return { id: convo.id, reportId: convo.report_id, title: convo.reports?.title ?? "FoundIt conversation", preview: latest?.content ?? "Say hello and start the conversation", time: latest?.created_at ?? convo.created_at, unread: Boolean(latest && latest.sender_id !== authData.user!.id && latest.created_at > (item.last_read_at ?? "")) };
+      return { id: convo.id, reportId: convo.report_id, title: convo.admin_recipient_id ? (viewerProfile?.is_admin ? recipientNames.get(convo.admin_recipient_id) ?? "Member conversation" : "FoundIt Admin") : convo.reports?.title ?? "FoundIt conversation", preview: latest?.content ?? "Say hello and start the conversation", time: latest?.created_at ?? convo.created_at, unread: Boolean(latest && latest.sender_id !== authData.user!.id && latest.created_at > (item.last_read_at ?? "")), isAdminThread: Boolean(convo.admin_recipient_id) };
     }));
     setThreads(built.sort((a, b) => b.time.localeCompare(a.time)));
     setLoading(false); setRefreshing(false);
@@ -147,7 +153,7 @@ export default function InboxScreen() {
                 <View style={styles.threadBody}>
                   <View style={styles.threadTop}><Text style={styles.threadTitle} numberOfLines={1}>{thread.title}</Text><Text style={styles.time}>{formatAge(thread.time)}</Text></View>
                   <Text style={styles.preview} numberOfLines={1}>{thread.preview}</Text>
-                  <Text style={styles.context}>ABOUT A CAMPUS REPORT</Text>
+                  <Text style={styles.context}>{thread.isAdminThread ? "FOUNDER SUPPORT CHAT" : "ABOUT A CAMPUS REPORT"}</Text>
                 </View>
                 {thread.unread ? <View style={styles.unreadDot} /> : <Text style={styles.arrow}>›</Text>}
               </Pressable>

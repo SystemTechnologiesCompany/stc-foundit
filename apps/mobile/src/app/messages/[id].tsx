@@ -26,6 +26,7 @@ export default function ConversationScreen() {
   const activeUserId = user?.id ?? null;
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [title, setTitle] = useState("FoundIt conversation");
+  const [isAdminThread, setIsAdminThread] = useState(false);
   const [content, setContent] = useState("");
   const [pendingPhoto, setPendingPhoto] = useState<PendingPhoto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,13 +39,22 @@ export default function ConversationScreen() {
     const userId = activeUserId;
     let alive = true;
     async function load() {
-      const [{ data: convo }, { data: rows, error: queryError }] = await Promise.all([
-        supabase.from("conversations").select("report_id, reports(title)").eq("id", id).single(),
+      const [{ data: convo }, { data: rows, error: queryError }, { data: viewerProfile }] = await Promise.all([
+        supabase.from("conversations").select("report_id, admin_recipient_id, reports(title)").eq("id", id).single(),
         supabase.from("messages").select("*").eq("conversation_id", id).order("created_at", { ascending: true }),
+        supabase.from("profiles").select("is_admin").eq("id", userId).maybeSingle(),
       ]);
       if (!alive) return;
-      const linked = convo as unknown as { reports?: { title?: string } } | null;
-      setTitle(linked?.reports?.title ?? "FoundIt conversation");
+      const linked = convo as unknown as { admin_recipient_id?: string | null; reports?: { title?: string } } | null;
+      const supportThread = Boolean(linked?.admin_recipient_id);
+      setIsAdminThread(supportThread);
+      if (supportThread) {
+        if (linked?.admin_recipient_id === userId) setTitle("FoundIt Admin");
+        else if (viewerProfile?.is_admin && linked?.admin_recipient_id) {
+          const { data: recipient } = await supabase.from("profiles").select("display_name").eq("id", linked.admin_recipient_id).maybeSingle();
+          setTitle(`Chat with ${recipient?.display_name ?? "member"}`);
+        } else setTitle("FoundIt Admin");
+      } else setTitle(linked?.reports?.title ?? "FoundIt conversation");
       if (queryError) setError(queryError.message);
       const withImages = await Promise.all(((rows ?? []) as ChatMessage[]).map(addSignedImage));
       if (!alive) return;
@@ -125,7 +135,7 @@ export default function ConversationScreen() {
           <View style={styles.headCopy}><Text style={styles.title} numberOfLines={1}>{title}</Text><View style={styles.privateRow}><View style={styles.privateDot} /><Text style={styles.privateText}>PRIVATE CAMPUS CHAT</Text></View></View>
           <Pressable onPress={() => router.push("/(tabs)/inbox")} style={styles.more}><Text style={styles.moreGlyph}>···</Text></Pressable>
         </View>
-        <View style={styles.notice}><Text style={styles.noticeGlyph}>◇</Text><Text style={styles.noticeText}>Confirm one detail that wasn’t included in the report. Keep personal contact details private.</Text></View>
+        <View style={styles.notice}><Text style={styles.noticeGlyph}>◇</Text><Text style={styles.noticeText}>{isAdminThread ? "Private chat with the FoundIt admin team. Reply here if you need help or want to respond to a warning." : "Confirm one detail that wasn’t included in the report. Keep personal contact details private."}</Text></View>
         <ScrollView ref={scroll} contentContainerStyle={styles.messages} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <View style={styles.day}><View style={styles.dayLine} /><Eyebrow>YOUR CONVERSATION</Eyebrow><View style={styles.dayLine} /></View>
           {loading ? <Text style={styles.emptyText}>Loading your private chat…</Text> : null}
