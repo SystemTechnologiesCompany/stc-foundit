@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { UniversitySelect } from "@/components/UniversitySelect";
 import { createClient } from "@/lib/supabase";
 
 export default function SignupPage() {
@@ -18,6 +19,10 @@ export default function SignupPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (university !== "Kasdi Merbah University" && university !== "Other University") {
+      setError("Choose a university to continue.");
+      return;
+    }
     setLoading(true);
     setError(null);
 
@@ -60,7 +65,7 @@ export default function SignupPage() {
         <h1 className="mt-3 text-3xl font-semibold">Check your email</h1>
         <p className="mt-3 text-muted">
           We sent a confirmation link to {email}. Click it, then come back
-          and sign in. CHECK YOUR SPAM FOLDER if you don't see it in your inbox.
+          and sign in. CHECK YOUR SPAM FOLDER if you don&apos;t see it in your inbox.
         </p>
         <Link href="/login" className="mt-6 inline-flex rounded-lg bg-brand px-5 py-2.5 font-semibold text-black hover:bg-brand-hover">Go to sign in</Link>
       </div>
@@ -84,15 +89,10 @@ export default function SignupPage() {
             className="w-full rounded-md border border-border bg-surface px-3 py-2 outline-none focus:border-brand"
           />
         </Field>
-        <Field label="University">
-          <input
-            required
-            value={university}
-            onChange={(e) => setUniversity(e.target.value)}
-            placeholder="e.g. Kasdi Merbah University"
-            className="w-full rounded-md border border-border bg-surface px-3 py-2 outline-none focus:border-brand"
-          />
-        </Field>
+        <div className="block">
+          <span className="mb-1 block text-sm text-muted">University</span>
+          <UniversitySelect value={university} onChange={(value) => { setUniversity(value); setError(null); }} />
+        </div>
         <Field label="Email">
           <input
             type="email"

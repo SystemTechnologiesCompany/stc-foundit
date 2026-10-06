@@ -3,6 +3,7 @@ import { Link, router } from "expo-router";
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { I18nText as Text } from "../../components/LocalizedText";
 import { LanguageDropdown } from "../../components/LanguageDropdown";
+import { UniversityDropdown } from "../../components/UniversityDropdown";
 import * as Linking from "expo-linking";
 import { BrandLockup, Button, Eyebrow, MessageBanner, Panel, Screen, TextField } from "../../components/ui";
 import { theme } from "../../constants/theme";
@@ -64,7 +65,7 @@ export default function SignupScreen() {
           <Panel style={styles.panel}>
             {!isSupabaseConfigured ? <MessageBanner tone="info">Connect the app to Supabase first: copy apps/mobile/.env.example to apps/mobile/.env, add your project URL and public key, then restart Expo.</MessageBanner> : null}
             <TextField label="Full name" placeholder="How should we call you?" autoComplete="name" value={name} onChangeText={setName} />
-            <TextField label="University" placeholder="Your campus or university" value={university} onChangeText={setUniversity} />
+            <UniversityDropdown value={university} onChange={setUniversity} />
             <TextField label="University email" placeholder="you@university.edu" autoCapitalize="none" autoComplete="email" keyboardType="email-address" value={email} onChangeText={setEmail} />
             <TextField label="Password" placeholder="At least 8 characters" secureTextEntry autoComplete="new-password" value={password} onChangeText={setPassword} />
             {error ? <MessageBanner>{error}</MessageBanner> : null}
