@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { RadarLoader } from "@/components/RadarLoader";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import type { Report } from "@stc-foundit/shared";
@@ -129,7 +130,7 @@ export default function AdminPage() {
   }
 
   if (checking) {
-    return <p className="mx-auto max-w-4xl px-4 py-10 text-muted">Loading...</p>;
+    return <div className="stc-loading-state stc-loading-state-centered"><RadarLoader label="Loading admin tools" /><span>Loading...</span></div>;
   }
 
   if (!isAdmin) {

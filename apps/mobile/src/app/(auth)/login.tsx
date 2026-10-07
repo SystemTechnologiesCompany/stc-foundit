@@ -71,7 +71,7 @@ export default function LoginScreen() {
           <Panel style={styles.formPanel}>
             {!isSupabaseConfigured ? <MessageBanner tone="info">Connect the app to Supabase first: copy apps/mobile/.env.example to apps/mobile/.env, add your project URL and public key, then restart Expo.</MessageBanner> : null}
             <TextField label="Email address" placeholder="you@university.edu" autoCapitalize="none" autoComplete="email" keyboardType="email-address" value={email} onChangeText={setEmail} />
-            <TextField label="Password" placeholder="Your password" secureTextEntry autoComplete="current-password" value={password} onChangeText={setPassword} onSubmitEditing={signIn} />
+            <TextField label="Password" placeholder="Your password" secureTextEntry showPasswordToggle autoComplete="current-password" value={password} onChangeText={setPassword} onSubmitEditing={signIn} />
             <Pressable onPress={forgotPassword} disabled={resetBusy} style={styles.forgot}><Text style={styles.forgotText}>{resetBusy ? "Sending reset link…" : "Forgot password?"}</Text></Pressable>
             {error ? <MessageBanner>{error}</MessageBanner> : null}
             <Button label="Sign in" onPress={signIn} loading={busy} disabled={!isSupabaseConfigured} icon="→" />

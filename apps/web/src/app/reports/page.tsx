@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 import ReportImage from "@/components/ReportImage";
+import { RadarLoader } from "@/components/RadarLoader";
 import type { Report, ReportType, ReportCategory } from "@stc-foundit/shared";
 
 const CATEGORIES: (ReportCategory | "all")[] = [
@@ -67,7 +68,7 @@ export default function ReportsFeedPage() {
       </div>
 
       <div className="mt-6 space-y-3">
-        {loading && <p className="text-muted">Loading...</p>}
+        {loading && <div className="stc-loading-state"><RadarLoader size="small" label="Loading reports" /><span>Loading...</span></div>}
         {!loading && reports.length === 0 && (
           <p className="text-muted">No reports match these filters yet.</p>
         )}

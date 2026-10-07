@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
+import { RadarLoader } from "@/components/RadarLoader";
 
 interface ConversationRow {
   id: string;
@@ -105,7 +106,7 @@ export default function MessagesInboxPage() {
       <p className="mt-2 text-sm text-muted">Private conversations about getting things home.</p>
       {error && !confirm && <p role="alert" className="mt-5 rounded-xl border border-danger/30 bg-danger/10 p-3 text-sm text-danger">{error}</p>}
       <div className="mt-7 space-y-3">
-        {loading && <p className="text-muted">Loading your conversations…</p>}
+        {loading && <div className="stc-loading-state"><RadarLoader size="small" label="Loading conversations" /><span>Loading your conversations…</span></div>}
         {!loading && conversations.length === 0 && <div className="rounded-2xl border border-border bg-surface p-7 text-center"><p className="font-semibold">Your inbox is a clean slate</p><p className="mt-2 text-sm text-muted">Open a report and start a private conversation.</p></div>}
         {conversations.map((conversation) => (
           <div key={conversation.id} className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-3 transition hover:border-brand/50">

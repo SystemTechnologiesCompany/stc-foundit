@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
+import { RadarLoader } from "@/components/RadarLoader";
 import type { Message } from "@stc-foundit/shared";
 
 type ChatMessage = Message & { attachment_path?: string | null; imageUrl?: string | null };
@@ -162,7 +163,7 @@ export default function ConversationPage() {
     }
   }
 
-  if (loading) return <p className="mx-auto max-w-2xl px-4 py-10 text-muted">Loading your private chat…</p>;
+  if (loading) return <div className="stc-loading-state stc-loading-state-centered"><RadarLoader label="Loading private chat" /><span>Loading your private chat…</span></div>;
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col px-3 sm:px-4" style={{ height: chatHeight ? `${chatHeight}px` : "calc(100dvh - 5rem)" }}>
@@ -195,7 +196,7 @@ export default function ConversationPage() {
 
       <form onSubmit={handleSend} className="flex shrink-0 items-end gap-2 border-t border-border bg-background/95 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <input ref={imageInput} type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoChange} className="sr-only" aria-label="Choose a photo to send" />
-        <button type="button" onClick={() => imageInput.current?.click()} disabled={sending} aria-label="Choose a photo" className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-border bg-surface text-xl text-brand transition hover:border-brand disabled:opacity-50"><img src="/photo-icon.png" alt="" className="h-5 w-5 object-contain" /></button>
+        <button type="button" onClick={() => imageInput.current?.click()} disabled={sending} aria-label="Choose a photo" className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-brand bg-brand text-xl text-black transition hover:bg-brand-hover disabled:opacity-50"><img src="/photo-icon.png" alt="" className="h-7 w-7 object-contain" /></button>
         <input value={content} onChange={(event) => setContent(event.target.value)} placeholder="Write a thoughtful message…" maxLength={2000} autoComplete="off" className="min-w-0 flex-1 rounded-2xl border border-border bg-surface px-4 py-3 text-sm outline-none placeholder:text-muted/80 focus:border-brand" />
         <button type="submit" disabled={sending || (!content.trim() && !pendingPhoto)} className="h-11 shrink-0 rounded-2xl bg-brand px-4 font-bold text-black transition hover:bg-brand-hover disabled:opacity-40">{sending ? "…" : "Send"}</button>
       </form>

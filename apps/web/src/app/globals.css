@@ -108,6 +108,8 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
   color: var(--brand);
   text-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
 }
+.mobile-nav-link { display: flex; min-width: 0; min-height: 2.85rem; align-items: center; gap: .5rem; border: 1px solid var(--border); border-radius: .8rem; background: color-mix(in srgb, var(--background) 72%, var(--surface)); padding: .65rem .75rem; color: var(--foreground); font-size: .82rem; font-weight: 650; transition: border-color 160ms ease, background 160ms ease, color 160ms ease; }
+.mobile-nav-link:hover { border-color: color-mix(in srgb, var(--brand) 48%, var(--border)); background: color-mix(in srgb, var(--brand) 8%, var(--surface)); color: var(--brand); }
 .language-select { position: relative; z-index: 80; }
 .language-trigger {
   display: inline-flex;
@@ -220,3 +222,43 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 @media (prefers-reduced-motion: reduce) {
   .stc-dialog-backdrop, .stc-dialog-card { animation-duration: 0.01ms; }
 }
+
+/* STC FoundIt cosmic anonymous-comment toggle */
+.cosmic-toggle { position: relative; display: inline-flex; width: 4.25rem; height: 2.3rem; flex: 0 0 auto; cursor: pointer; }
+.cosmic-toggle-input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.cosmic-toggle-slider { position: absolute; inset: 0; overflow: hidden; border: 1px solid rgba(184, 242, 124, .2); border-radius: 999px; background: linear-gradient(115deg, #101b14, #08110d 72%); box-shadow: inset 0 2px 8px rgba(0, 0, 0, .55); transition: background 260ms ease, border-color 260ms ease, box-shadow 260ms ease; }
+.cosmic-toggle-input:checked + .cosmic-toggle-slider { border-color: rgba(184, 242, 124, .8); background: linear-gradient(115deg, #25452c, #102117 72%); box-shadow: inset 0 2px 8px rgba(0, 0, 0, .35), 0 0 14px rgba(184, 242, 124, .15); }
+.cosmic-toggle-input:focus-visible + .cosmic-toggle-slider { outline: 2px solid #b8f27c; outline-offset: 3px; }
+.cosmic-toggle-cosmos { position: absolute; inset: 0; opacity: .42; background-image: radial-gradient(circle at 27% 29%, #b8f27c 0 1px, transparent 1.6px), radial-gradient(circle at 71% 68%, #d5ffad 0 1px, transparent 1.6px), radial-gradient(circle at 51% 19%, #4b8b59 0 1px, transparent 1.5px); transition: opacity 250ms ease; }
+.cosmic-toggle-input:checked + .cosmic-toggle-slider .cosmic-toggle-cosmos { opacity: .9; }
+.cosmic-toggle-energy { position: absolute; left: 1.7rem; top: 50%; width: 1.45rem; height: 2px; border-radius: 4px; background: linear-gradient(90deg, transparent, #b8f27c, transparent); opacity: 0; transform: translateY(-50%) scaleX(.3); transition: transform 280ms ease, opacity 180ms ease; }
+.cosmic-toggle-energy:nth-of-type(3) { width: 1.1rem; margin-top: -5px; }
+.cosmic-toggle-energy:nth-of-type(4) { width: .9rem; margin-top: 5px; }
+.cosmic-toggle-input:checked + .cosmic-toggle-slider .cosmic-toggle-energy { opacity: .75; transform: translateY(-50%) scaleX(1); animation: cosmic-energy 1.4s ease-in-out infinite alternate; }
+.cosmic-toggle-orb { position: absolute; z-index: 2; top: .2rem; left: .2rem; display: grid; width: 1.75rem; height: 1.75rem; place-items: center; border: 1px solid rgba(184, 242, 124, .45); border-radius: 50%; background: radial-gradient(circle at 34% 30%, #263b2a, #101b14 70%); box-shadow: 0 2px 8px rgba(0, 0, 0, .6), inset 0 0 7px rgba(184, 242, 124, .12); transition: transform 320ms cubic-bezier(.2,.85,.25,1.2), border-color 220ms ease, background 220ms ease; }
+.cosmic-toggle-input:checked + .cosmic-toggle-slider .cosmic-toggle-orb { transform: translateX(1.95rem); border-color: #d5ffad; background: radial-gradient(circle at 34% 30%, #e4ffc7, #78b85c 76%); }
+.cosmic-toggle-inner { width: .6rem; height: .6rem; border-radius: 50%; background: #b8f27c; box-shadow: 0 0 8px rgba(184, 242, 124, .8); transition: background 220ms ease; }
+.cosmic-toggle-input:checked + .cosmic-toggle-slider .cosmic-toggle-inner { background: #173820; }
+.cosmic-toggle-ring { position: absolute; inset: 3px; border: 1px solid rgba(184, 242, 124, .32); border-radius: inherit; }
+.cosmic-toggle-particles { position: absolute; inset: 0; pointer-events: none; }
+.cosmic-toggle-particle { position: absolute; top: 50%; left: 50%; width: 3px; height: 3px; border-radius: 50%; background: #d5ffad; opacity: 0; transform: rotate(var(--angle)) translateX(0); transition: transform 320ms ease, opacity 180ms ease; }
+.cosmic-toggle-input:checked + .cosmic-toggle-slider .cosmic-toggle-particle { opacity: .85; transform: rotate(var(--angle)) translateX(1.65rem); }
+@keyframes cosmic-energy { from { filter: brightness(.75); } to { filter: brightness(1.45); } }
+@media (prefers-reduced-motion: reduce) { .cosmic-toggle *, .cosmic-toggle::before { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+/* STC FoundIt radar loader */
+.stc-radar-loader { position: relative; display: inline-grid; flex: 0 0 auto; place-items: center; overflow: hidden; width: 5.5rem; height: 5.5rem; border: 1px solid rgba(184, 242, 124, .28); border-radius: 50%; background: #0b140f; box-shadow: 10px 10px 30px rgba(0, 0, 0, .42), inset 0 0 16px rgba(0, 0, 0, .3); vertical-align: middle; }
+.stc-radar-loader::before { position: absolute; inset: 14%; content: ""; border: 1px dashed rgba(184, 242, 124, .34); border-radius: 50%; box-shadow: inset -5px -5px 16px rgba(0, 0, 0, .2), inset 5px 5px 22px rgba(0, 0, 0, .18); }
+.stc-radar-loader::after { position: absolute; width: 34%; height: 34%; content: ""; border: 1px dashed rgba(184, 242, 124, .34); border-radius: 50%; box-shadow: inset -5px -5px 16px rgba(0, 0, 0, .2), inset 5px 5px 22px rgba(0, 0, 0, .18); }
+.stc-radar-loader-core { z-index: 1; width: 8%; height: 8%; border-radius: 50%; background: #b8f27c; box-shadow: 0 0 10px rgba(184, 242, 124, .85); }
+.stc-radar-loader-sweep { position: absolute; top: 50%; left: 50%; width: 50%; height: 50%; transform-origin: top left; animation: stc-radar-spin 2s linear infinite; border-top: 1px dashed rgba(232, 255, 211, .95); }
+.stc-radar-loader-sweep::before { position: absolute; top: 0; left: 0; width: 100%; height: 100%; content: ""; transform: rotate(-55deg); transform-origin: top left; background: rgba(111, 202, 105, .38); filter: blur(12px) drop-shadow(10px 10px 12px rgba(92, 181, 91, .7)); }
+.stc-radar-loader-small { width: 1.5rem; height: 1.5rem; border-color: rgba(184, 242, 124, .35); box-shadow: none; }
+.stc-radar-loader-small::before { inset: 14%; }
+.stc-radar-loader-small::after { border-color: rgba(184, 242, 124, .35); }
+.stc-radar-loader-small .stc-radar-loader-sweep { border-color: currentColor; }
+.stc-loading-state { display: flex; min-height: 6rem; align-items: center; justify-content: center; gap: .75rem; color: var(--muted); }
+.stc-loading-state-centered { flex-direction: column; padding: 2rem 1rem; text-align: center; }
+.news-share-icon { display: inline-block; width: 1.25rem; height: 1.25rem; flex: 0 0 auto; background-color: var(--brand); -webkit-mask: url("/news-share.png") center / contain no-repeat; mask: url("/news-share.png") center / contain no-repeat; }
+@keyframes stc-radar-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .stc-radar-loader-sweep { animation-duration: 8s; } }

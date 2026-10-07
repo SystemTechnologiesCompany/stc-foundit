@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
+import { RadarLoader } from "@/components/RadarLoader";
 import ReportImage from "@/components/ReportImage";
 import type { Report } from "@stc-foundit/shared";
 
@@ -22,6 +23,7 @@ export default function ReportDetailPage() {
   const [contacting, setContacting] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [shareStatus, setShareStatus] = useState("");
 
   useEffect(() => {
     async function load() {
@@ -59,8 +61,21 @@ export default function ReportDetailPage() {
     router.push(`/messages/${conversationId}`);
   }
 
+  async function handleShare() {
+    if (!report) return;
+    const url = `${window.location.origin}/reports/${report.id}`;
+    setShareStatus("");
+    try {
+      if (navigator.share) await navigator.share({ title: report.title, text: `FoundIt campus report: ${report.title}`, url });
+      else { await navigator.clipboard.writeText(url); setShareStatus("Report link copied."); }
+    } catch (shareError) {
+      if (shareError instanceof Error && shareError.name === "AbortError") return;
+      setShareStatus("Could not share the report. Copy its address from your browser.");
+    }
+  }
+
   if (loading) {
-    return <p className="mx-auto max-w-2xl px-4 py-10 text-muted">Loading...</p>;
+    return <div className="stc-loading-state stc-loading-state-centered"><RadarLoader label="Loading report" /><span>Loading...</span></div>;
   }
 
   if (!report) {
@@ -99,9 +114,9 @@ export default function ReportDetailPage() {
         ← Back to browse
       </Link>
 
-      <div className="mt-4 flex items-center justify-between">
+      <div className="mt-4 flex items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">{report.title}</h1>
-        <span
+        <div className="flex shrink-0 items-center gap-2"><button type="button" onClick={() => void handleShare()} className="rounded-xl border border-border px-3 py-2 text-sm font-semibold text-muted hover:border-brand/60 hover:text-brand">Share ↗</button><span
           className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
             isResolved
               ? "bg-muted/20 text-muted"
@@ -111,8 +126,9 @@ export default function ReportDetailPage() {
           }`}
         >
           {isResolved ? "Returned" : isLost ? "Lost" : "Found"}
-        </span>
+        </span></div>
       </div>
+      {shareStatus && <p role="status" className="mt-2 text-xs text-brand">{shareStatus}</p>}
 
       <div className="mt-2 flex gap-3 text-sm text-muted">
         <span>{report.category}</span>

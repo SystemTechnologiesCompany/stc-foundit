@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { Image, Pressable, ScrollView, Share, StyleSheet, View } from "react-native";
 import { I18nText as Text } from "../../components/LocalizedText";
-import { Button, Eyebrow, MessageBanner, Pill, Screen } from "../../components/ui";
+import { Button, Eyebrow, MessageBanner, Pill, RadarLoader, Screen } from "../../components/ui";
 import { categoryEmoji, categoryLabels, theme } from "../../constants/theme";
 import { friendlyError } from "../../lib/reports";
 import { supabase } from "../../lib/supabase";
@@ -57,7 +57,7 @@ export default function ReportDetailScreen() {
     setReport({ ...report, status: "returned" });
   }
 
-  if (loading) return <Screen><View style={styles.center}><Text style={styles.muted}>Opening this report…</Text></View></Screen>;
+  if (loading) return <Screen><View style={styles.center}><RadarLoader /><Text style={styles.muted}>Opening this report…</Text></View></Screen>;
   if (!report) return (
     <Screen><View style={styles.errorPage}><Pressable onPress={() => router.back()}><Text style={styles.back}>‹  Back</Text></Pressable><MessageBanner>{error || "We couldn’t find that report."}</MessageBanner><Button label="Browse reports" onPress={() => router.replace("/(tabs)")} kind="secondary" /></View></Screen>
   );
@@ -67,7 +67,7 @@ export default function ReportDetailScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.top}><Pressable onPress={() => router.back()} style={styles.backButton}><Text style={styles.backGlyph}>‹</Text><Text style={styles.backLabel}>Back</Text></Pressable><Pressable onPress={() => Share.share({ message: `FoundIt campus report: ${report.title}` })} style={styles.share}><Text style={styles.shareGlyph}>↗</Text></Pressable></View>
+        <View style={styles.top}><Pressable onPress={() => router.back()} style={styles.backButton}><Text style={styles.backGlyph}>‹</Text><Text style={styles.backLabel}>Back</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Share this report" onPress={() => { const url = `https://stcfoundit.netlify.app/reports/${report.id}`; void Share.share({ title: report.title, message: `FoundIt campus report: ${report.title}\n${url}`, url }); }} style={styles.share}><Text style={styles.shareGlyph}>↗</Text></Pressable></View>
         {photoUrls.length ? <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={styles.photoStrip}>{photoUrls.map((uri, index) => <Image key={`${uri}-${index}`} source={{ uri }} style={styles.photo} />)}</ScrollView> : <View style={styles.cover}><View style={styles.coverOrbit} /><Text style={styles.coverGlyph}>{categoryEmoji[report.category] ?? "✦"}</Text><Text style={styles.coverCaption}>A CAMPUS COMMUNITY REPORT</Text></View>}
         <View style={styles.badges}><Pill label={isLost ? "Lost item" : "Found item"} selected tone={isLost ? "orange" : "green"} /><Pill label={categoryLabels[report.category] ?? "Other"} /></View>
         <View style={styles.titleBlock}><Eyebrow>{isLost ? "HELP SOMEONE FIND THEIR WAY BACK" : "SOMEONE DID A KIND THING"}</Eyebrow><Text style={styles.title}>{report.title}</Text><Text style={styles.subtitle}>{report.description}</Text></View>

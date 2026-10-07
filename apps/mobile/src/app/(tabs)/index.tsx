@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { router, useFocusEffect } from "expo-router";
 import { Image, Pressable, RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { I18nText as Text, I18nTextInput as TextInput } from "../../components/LocalizedText";
-import { BrandLockup, Button, EmptyState, Eyebrow, MessageBanner, Pill, Screen } from "../../components/ui";
+import { BrandLockup, Button, EmptyState, Eyebrow, MessageBanner, Pill, RadarLoader, Screen } from "../../components/ui";
 import { ReportCard, type MobileReport } from "../../components/ReportCard";
 import { categoryLabels, theme } from "../../constants/theme";
 import { friendlyError, loadReports } from "../../lib/reports";
@@ -100,7 +100,7 @@ export default function DiscoverScreen() {
 
         {error ? <MessageBanner>{error}</MessageBanner> : null}
         <View style={styles.reportList}>
-          {loading && reports.length === 0 ? <View style={styles.loadingLine}><View style={styles.loadingDot} /><Text style={styles.loadingText}>Finding the latest updates…</Text></View> : null}
+          {loading && reports.length === 0 ? <View style={styles.loadingLine}><RadarLoader size={36} /><Text style={styles.loadingText}>Finding the latest updates…</Text></View> : null}
           {!loading && shown.length === 0 && !error ? <EmptyState icon="⌕" title="Nothing in this corner yet" body="Try a different search or filter. New reports show up here as soon as someone shares them." /> : null}
           {shown.map((report) => <ReportCard report={report} key={report.id} />)}
           {error ? <Button label="Try again" onPress={() => refresh()} kind="secondary" /> : null}

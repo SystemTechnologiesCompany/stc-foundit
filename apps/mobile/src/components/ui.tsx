@@ -1,5 +1,5 @@
-import type { PropsWithChildren, ReactNode } from "react";
-import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, type TextInputProps, type ColorValue, View, type ViewStyle } from "react-native";
+import { useEffect, useState, type PropsWithChildren, type ReactNode } from "react";
+import { Animated, Image, Pressable, ScrollView, StyleSheet, type TextInputProps, type ColorValue, View, type ViewStyle } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { I18nText as Text, I18nTextInput as TextInput } from "./LocalizedText";
 import { useLanguage } from "../providers/LanguageProvider";
@@ -126,24 +126,74 @@ export function Button({ label, onPress, kind = "primary", loading = false, disa
         pressed && !(disabled || loading) && styles.pressed,
       ]}
     >
-      {loading ? <ActivityIndicator color={primary ? theme.colors.bg : theme.colors.brand} /> : null}
+      {loading ? <RadarLoader size={24} color={primary ? theme.colors.bg : theme.colors.brand} /> : null}
       {!loading && icon ? <Text style={[styles.buttonIcon, primary && styles.buttonIconPrimary]}>{icon}</Text> : null}
       {!loading ? <Text style={[styles.buttonText, primary && styles.buttonTextPrimary, danger && styles.buttonTextDanger]}>{label}</Text> : null}
     </Pressable>
   );
 }
 
-export function TextField({ label, error, multiline, style, ...props }: TextInputProps & { label?: string; error?: string }) {
+export function RadarLoader({ size = 88, color = theme.colors.brand }: { size?: number; color?: string }) {
+  const [rotation] = useState(() => new Animated.Value(0));
+  useEffect(() => {
+    const animation = Animated.loop(Animated.timing(rotation, { toValue: 1, duration: 2000, useNativeDriver: true }));
+    animation.start();
+    return () => animation.stop();
+  }, [rotation]);
+  const spin = rotation.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "360deg"] });
+  const inset = size * 0.14;
+  const core = size * 0.34;
+  return (
+    <View accessibilityRole="progressbar" style={{ width: size, height: size, alignItems: "center", justifyContent: "center", borderRadius: size / 2, borderWidth: 1, borderColor: `${color}55`, backgroundColor: "#0B140F", overflow: "hidden", shadowColor: "#000", shadowOpacity: 0.25, shadowRadius: size * 0.16, elevation: 5 }}>
+      <View style={{ position: "absolute", top: inset, right: inset, bottom: inset, left: inset, borderRadius: size / 2, borderWidth: 1, borderStyle: "dashed", borderColor: `${color}55` }} />
+      <View style={{ width: core, height: core, borderRadius: core / 2, borderWidth: 1, borderStyle: "dashed", borderColor: `${color}55`, backgroundColor: "#0E1A12" }} />
+      <Animated.View pointerEvents="none" style={{ position: "absolute", width: size, height: size, transform: [{ rotate: spin }] }}><View style={{ position: "absolute", top: 0, left: size / 2, width: 1, height: size / 2, backgroundColor: color, opacity: 0.9 }} /></Animated.View>
+      <View style={{ position: "absolute", top: size * 0.22, left: size * 0.25, width: 3, height: 3, borderRadius: 2, backgroundColor: color, opacity: 0.9 }} />
+      <View style={{ position: "absolute", right: size * 0.23, bottom: size * 0.28, width: 2, height: 2, borderRadius: 2, backgroundColor: color, opacity: 0.7 }} />
+    </View>
+  );
+}
+
+export function TextField({ label, error, multiline, style, showPasswordToggle = false, secureTextEntry, ...props }: TextInputProps & { label?: string; error?: string; showPasswordToggle?: boolean }) {
+  const [passwordVisible, setPasswordVisible] = useState(false);
   return (
     <View style={styles.fieldWrap}>
       {label ? <Text style={styles.fieldLabel}>{label}</Text> : null}
-      <TextInput
-        placeholderTextColor={theme.colors.subtle}
-        selectionColor={theme.colors.brand}
-        multiline={multiline}
-        style={[styles.input, multiline && styles.inputMultiline, style]}
-        {...props}
-      />
+      {showPasswordToggle ? (
+        <View style={styles.passwordInputShell}>
+          <TextInput
+            placeholderTextColor={theme.colors.subtle}
+            selectionColor={theme.colors.brand}
+            multiline={multiline}
+            secureTextEntry={Boolean(secureTextEntry) && !passwordVisible}
+            style={[styles.passwordInput, style]}
+            {...props}
+          />
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={passwordVisible ? "Hide password" : "Show password"}
+            accessibilityState={{ selected: passwordVisible }}
+            hitSlop={8}
+            onPress={() => setPasswordVisible((visible) => !visible)}
+            style={({ pressed }) => [styles.passwordVisibilityButton, pressed && styles.pressed]}
+          >
+            <Image
+              source={passwordVisible ? require("../../assets/password-visible.png") : require("../../assets/password-hidden.png")}
+              resizeMode="contain"
+              style={styles.passwordVisibilityIcon}
+            />
+          </Pressable>
+        </View>
+      ) : (
+        <TextInput
+          placeholderTextColor={theme.colors.subtle}
+          selectionColor={theme.colors.brand}
+          multiline={multiline}
+          secureTextEntry={secureTextEntry}
+          style={[styles.input, multiline && styles.inputMultiline, style]}
+          {...props}
+        />
+      )}
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   );
@@ -161,7 +211,7 @@ export function LoadingView({ label = "Getting things ready…" }: { label?: str
   return (
     <View style={styles.loading}>
       <BrandMark />
-      <ActivityIndicator color={theme.colors.brand} size="small" />
+      <RadarLoader />
       <Text style={styles.loadingLabel}>{label}</Text>
     </View>
   );
@@ -217,6 +267,10 @@ const styles = StyleSheet.create({
   fieldWrap: { gap: 8 },
   fieldLabel: { color: theme.colors.text, fontSize: 12, fontWeight: "700", letterSpacing: 0.1 },
   input: { color: theme.colors.text, backgroundColor: theme.colors.bgRaised, borderColor: theme.colors.line, borderWidth: 1, borderRadius: 14, paddingHorizontal: 15, minHeight: 52, fontSize: 14 },
+  passwordInputShell: { flexDirection: "row", alignItems: "center", backgroundColor: theme.colors.bgRaised, borderColor: theme.colors.line, borderWidth: 1, borderRadius: 14, minHeight: 52, paddingLeft: 15, paddingRight: 6 },
+  passwordInput: { flex: 1, color: theme.colors.text, minHeight: 50, fontSize: 14, paddingHorizontal: 0, paddingVertical: 0 },
+  passwordVisibilityButton: { width: 42, height: 46, alignItems: "center", justifyContent: "center", borderRadius: 12 },
+  passwordVisibilityIcon: { width: 21, height: 21, tintColor: theme.colors.muted },
   inputMultiline: { minHeight: 124, textAlignVertical: "top", paddingTop: 14 },
   errorText: { color: theme.colors.red, fontSize: 12, lineHeight: 18 },
   banner: { padding: 13, borderRadius: 14, borderWidth: 1 },

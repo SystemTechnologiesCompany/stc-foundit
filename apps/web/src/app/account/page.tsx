@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 
 const supabase = createClient();
+const INVITE_URL = "https://stcfoundit.netlify.app/signup?source=classmate-invite";
+const INVITE_QR_URL = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=8&data=${encodeURIComponent(INVITE_URL)}`;
 
 export default function AccountPage() {
   const router = useRouter();
@@ -18,6 +20,7 @@ export default function AccountPage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [inviteStatus, setInviteStatus] = useState("");
   const nextNameChange = nameChangedAt ? new Date(Date.parse(nameChangedAt) + 7 * 24 * 60 * 60 * 1000) : null;
   const nameLocked = Boolean(nextNameChange && nextNameChange.getTime() > Date.now());
 
@@ -78,6 +81,22 @@ export default function AccountPage() {
     setAvatarPath(null); setAvatarUrl(null); setBusy(false);
   }
 
+  async function shareInvite() {
+    setInviteStatus("");
+    try {
+      if (navigator.share) await navigator.share({ title: "Join FoundIt", text: "Join the FoundIt campus community:", url: INVITE_URL });
+      else { await navigator.clipboard.writeText(INVITE_URL); setInviteStatus("Invite link copied."); }
+    } catch (shareError) {
+      if (shareError instanceof Error && shareError.name === "AbortError") return;
+      setInviteStatus("Could not share the invite link. Copy it from the link below.");
+    }
+  }
+
+  async function copyInvite() {
+    try { await navigator.clipboard.writeText(INVITE_URL); setInviteStatus("Invite link copied."); }
+    catch { setInviteStatus("Could not copy the link. Select and copy it below."); }
+  }
+
   return <div className="mx-auto max-w-xl px-4 py-10">
     <p className="eyebrow">YOUR SPACE</p><h1 className="mt-2 text-3xl font-black">Profile settings</h1><p className="mt-2 text-sm text-muted">Choose a photo other FoundIt members will see beside your comments.</p>
     <section className="mt-7 rounded-3xl border border-border bg-surface p-6 text-center">
@@ -93,6 +112,13 @@ export default function AccountPage() {
       <div className="mt-5 flex flex-wrap justify-center gap-3"><button type="button" disabled={busy} onClick={() => picker.current?.click()} className="rounded-xl bg-brand px-5 py-2.5 text-sm font-bold text-black disabled:opacity-50">{busy ? "Saving…" : avatarUrl ? "Choose another photo" : "Choose profile photo"}</button>{avatarUrl && <button type="button" disabled={busy} onClick={() => void removePhoto()} className="rounded-xl border border-border px-5 py-2.5 text-sm font-semibold text-muted disabled:opacity-50">Remove photo</button>}</div>
       <p className="mt-4 text-xs text-muted">JPG, PNG or WebP · up to 5 MB</p>
       {error && <p role="alert" className="mt-4 text-sm text-danger">{error}</p>}
+    </section>
+    <section className="mt-5 rounded-3xl border border-border bg-surface p-6 text-center">
+      <p className="eyebrow">GROW YOUR CAMPUS COMMUNITY</p><h2 className="mt-2 text-lg font-black">Invite classmates</h2><p className="mx-auto mt-2 max-w-sm text-sm text-muted">Share FoundIt with your campus so more lost items can find their way home.</p>
+      <div className="mx-auto mt-5 w-fit rounded-2xl bg-white p-2"><img src={INVITE_QR_URL} alt="QR code to join FoundIt" width={180} height={180} /></div>
+      <p className="mx-auto mt-4 max-w-sm break-all rounded-xl border border-border bg-background px-3 py-2 text-xs text-muted">{INVITE_URL}</p>
+      <div className="mt-4 flex flex-wrap justify-center gap-2"><button type="button" onClick={() => void shareInvite()} className="rounded-xl bg-brand px-5 py-2.5 text-sm font-bold text-black">Share invite link</button><button type="button" onClick={() => void copyInvite()} className="rounded-xl border border-border px-5 py-2.5 text-sm font-semibold text-muted hover:border-brand/60">Copy link</button></div>
+      {inviteStatus && <p role="status" className="mt-3 text-xs text-brand">{inviteStatus}</p>}
     </section>
   </div>;
 }

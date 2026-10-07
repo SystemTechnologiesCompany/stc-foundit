@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { router, useFocusEffect } from "expo-router";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { I18nText as Text } from "../components/LocalizedText";
-import { Button, EmptyState, Eyebrow, MessageBanner, Screen } from "../components/ui";
+import { Button, EmptyState, Eyebrow, MessageBanner, RadarLoader, Screen } from "../components/ui";
 import { ReportCard, type MobileReport } from "../components/ReportCard";
 import { theme } from "../constants/theme";
 import { withPhotoUrls } from "../lib/reports";
@@ -32,7 +32,7 @@ export default function MyReportsScreen() {
         <Button label="‹  Back to your profile" onPress={() => router.back()} kind="quiet" />
         <View style={styles.heading}><Eyebrow>YOUR CAMPUS FOOTPRINT</Eyebrow><Text style={styles.title}>Your reports</Text><Text style={styles.subtitle}>Follow the posts you’ve shared with your campus.</Text></View>
         {error ? <MessageBanner>{error}</MessageBanner> : null}
-        {loading && !reports.length ? <Text style={styles.emptyText}>Loading your reports…</Text> : null}
+        {loading && !reports.length ? <View style={{ alignItems: "center", gap: 10, paddingVertical: 20 }}><RadarLoader size={48} /><Text style={styles.emptyText}>Loading your reports…</Text></View> : null}
         {!loading && !reports.length && !error ? <EmptyState icon="＋" title="Your first report starts here" body="Share what you lost or found. Your campus community will see it." action={<Button label="Create a report" onPress={() => router.push("/(tabs)/post")} />} /> : null}
         <View style={styles.list}>{reports.map((report) => <View key={report.id} style={styles.report}><ReportCard report={report} /><Text style={[styles.status, report.status !== "active" && styles.statusDone]}>{report.status === "active" ? "●  ACTIVE" : `✓  ${report.status.toUpperCase()}`}</Text></View>)}</View>
       </ScrollView>

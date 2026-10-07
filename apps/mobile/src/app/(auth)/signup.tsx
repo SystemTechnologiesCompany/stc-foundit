@@ -67,7 +67,7 @@ export default function SignupScreen() {
             <TextField label="Full name" placeholder="How should we call you?" autoComplete="name" value={name} onChangeText={setName} />
             <UniversityDropdown value={university} onChange={setUniversity} />
             <TextField label="University email" placeholder="you@university.edu" autoCapitalize="none" autoComplete="email" keyboardType="email-address" value={email} onChangeText={setEmail} />
-            <TextField label="Password" placeholder="At least 8 characters" secureTextEntry autoComplete="new-password" value={password} onChangeText={setPassword} />
+            <TextField label="Password" placeholder="At least 8 characters" secureTextEntry showPasswordToggle autoComplete="new-password" value={password} onChangeText={setPassword} />
             {error ? <MessageBanner>{error}</MessageBanner> : null}
             <Button label="Create my account" onPress={createAccount} loading={busy} disabled={!isSupabaseConfigured} icon="→" />
             <Text style={styles.privacy}>Your email stays private. Messages happen inside FoundIt.</Text>
