@@ -24,6 +24,18 @@ export default function HomePage() {
         >
           I already have an account
         </Link>
+        <a
+          href="https://github.com/SystemTechnologiesCompany/stc-foundit/releases/download/v1.0/STC.FoundIt.apk"
+          className="group inline-flex items-center justify-center gap-3 rounded-xl border border-brand/40 bg-gradient-to-r from-brand/15 via-surface to-brand/10 px-6 py-3 text-left shadow-lg shadow-brand/10 transition hover:-translate-y-0.5 hover:border-brand hover:shadow-brand/20"
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6 shrink-0 fill-brand transition group-hover:scale-110">
+            <path d="M17.6 9.48 19.44 6.3a.5.5 0 0 0-.87-.5l-1.87 3.23a11.2 11.2 0 0 0-9.4 0L5.43 5.8a.5.5 0 1 0-.87.5L6.4 9.48A9.6 9.6 0 0 0 2 17h20a9.6 9.6 0 0 0-4.4-7.52ZM7.5 13.25a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm9 0a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM3 18h18v1a2 2 0 0 1-2 2h-1v1.5a1 1 0 0 1-2 0V21H8v1.5a1 1 0 0 1-2 0V21H5a2 2 0 0 1-2-2v-1Z" />
+          </svg>
+          <span>
+            <span className="block font-semibold text-foreground">Download Android App</span>
+            <span className="mt-0.5 block text-xs text-muted">Free APK · Android</span>
+          </span>
+        </a>
       </div>
       <p className="mt-5 text-xs text-muted">Sign in to browse reports or post a lost or found item</p>
       </section>
