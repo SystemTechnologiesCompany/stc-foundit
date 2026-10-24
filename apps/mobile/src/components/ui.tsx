@@ -12,11 +12,13 @@ export function Screen({ children, style }: PropsWithChildren<{ style?: ViewStyl
   const { language } = useLanguage();
   const tabBarBlur = useContext(TabBarBlurContext);
   const blurTargetRef = useRef<View | null>(null);
+  const registerBlurTarget = tabBarBlur?.registerTarget;
+  const clearBlurTarget = tabBarBlur?.clearTarget;
   useFocusEffect(useCallback(() => {
-    if (!tabBarBlur) return;
-    tabBarBlur.registerTarget(blurTargetRef);
-    return () => tabBarBlur.clearTarget(blurTargetRef);
-  }, [tabBarBlur?.registerTarget, tabBarBlur?.clearTarget]));
+    if (!registerBlurTarget || !clearBlurTarget) return;
+    registerBlurTarget(blurTargetRef);
+    return () => clearBlurTarget(blurTargetRef);
+  }, [registerBlurTarget, clearBlurTarget]));
   const screen = (
     <SafeAreaView style={[styles.safe, { direction: language === "ar" ? "rtl" : "ltr" }, style]} edges={["top", "left", "right"]}>
       {children}

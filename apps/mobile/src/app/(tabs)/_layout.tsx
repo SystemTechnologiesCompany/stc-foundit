@@ -1,15 +1,17 @@
 import { useCallback, useMemo, useState } from "react";
-import { PanResponder, StyleSheet, View, type ColorValue } from "react-native";
+import { Dimensions, Easing, PanResponder, StyleSheet, View, type ColorValue, type View as NativeView } from "react-native";
 import type { RefObject } from "react";
-import type { View as NativeView } from "react-native";
 import { BlurView } from "expo-blur";
 import { Tabs, router, useSegments } from "expo-router";
 import { I18nText as Text } from "../../components/LocalizedText";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { TabBarBlurContext } from "../../components/TabBarBlurContext";
 import { AppIcon } from "../../components/ui";
 import { theme } from "../../constants/theme";
 import { useLanguage } from "../../providers/LanguageProvider";
-import { TabBarBlurContext } from "../../components/TabBarBlurContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const TAB_NAMES = ["index", "news", "post", "inbox", "profile"] as const;
+const TAB_PATHS = ["/(tabs)", "/(tabs)/news", "/(tabs)/post", "/(tabs)/inbox", "/(tabs)/profile"] as const;
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
@@ -20,76 +22,95 @@ export default function TabLayout() {
   const clearBlurTarget = useCallback((target: RefObject<NativeView | null>) => {
     setBlurTarget((current) => current === target ? null : current);
   }, []);
-  const tabNames = ["index", "news", "post", "inbox", "profile"];
-  const tabPaths = ["/(tabs)", "/(tabs)/news", "/(tabs)/post", "/(tabs)/inbox", "/(tabs)/profile"];
-  const currentName = segments[segments.length - 1] ?? "index";
-  const currentIndex = Math.max(0, tabNames.indexOf(currentName));
+
+  const currentName = String(segments[segments.length - 1] ?? "index");
+  const currentIndex = Math.max(0, TAB_NAMES.indexOf(currentName as (typeof TAB_NAMES)[number]));
   const swipeResponder = useMemo(() => PanResponder.create({
     onStartShouldSetPanResponder: () => false,
-    onMoveShouldSetPanResponder: (_event, gesture) => Math.abs(gesture.dx) > 28 && Math.abs(gesture.dx) > Math.abs(gesture.dy) * 1.25,
+    onMoveShouldSetPanResponder: (_event, gesture) =>
+      Math.abs(gesture.dx) > 36 && Math.abs(gesture.dx) > Math.abs(gesture.dy) * 1.3,
     onPanResponderRelease: (_event, gesture) => {
-      if (Math.abs(gesture.dx) < 70 || Math.abs(gesture.dx) < Math.abs(gesture.dy) * 1.25) return;
-      const nextIndex = Math.max(0, Math.min(tabPaths.length - 1, currentIndex + (gesture.dx < 0 ? 1 : -1)));
-      if (nextIndex !== currentIndex) router.navigate(tabPaths[nextIndex] as never);
+      if (Math.abs(gesture.dx) < 72 || Math.abs(gesture.dx) < Math.abs(gesture.dy) * 1.3) return;
+      const nextIndex = Math.max(0, Math.min(TAB_PATHS.length - 1, currentIndex + (gesture.dx < 0 ? 1 : -1)));
+      if (nextIndex !== currentIndex) router.navigate(TAB_PATHS[nextIndex] as never);
     },
   }), [currentIndex]);
 
+  const screenWidth = Dimensions.get("window").width;
+  const providerValue = useMemo(
+    () => ({ target: blurTarget, registerTarget: registerBlurTarget, clearTarget: clearBlurTarget }),
+    [blurTarget, registerBlurTarget, clearBlurTarget],
+  );
+
   return (
-    <TabBarBlurContext.Provider value={{ target: blurTarget, registerTarget: registerBlurTarget, clearTarget: clearBlurTarget }}>
-      <View style={{ flex: 1, backgroundColor: theme.colors.bg }} {...swipeResponder.panHandlers}>
+    <TabBarBlurContext.Provider value={providerValue}>
+      <View style={styles.root} {...swipeResponder.panHandlers}>
         <Tabs
-        screenOptions={{
-          headerShown: false,
-          animation: "shift",
-          transitionSpec: { animation: "timing", config: { duration: 280 } },
-          tabBarActiveTintColor: theme.colors.bg,
-          tabBarInactiveTintColor: theme.colors.subtle,
-          tabBarHideOnKeyboard: true,
-          sceneStyle: { paddingBottom: 88 + insets.bottom, backgroundColor: theme.colors.bg },
-          tabBarStyle: {
-            position: "absolute",
-            left: 18,
-            right: 18,
-            bottom: insets.bottom + 13,
-            height: 72,
-            paddingTop: 6,
-            paddingBottom: 6,
-            paddingHorizontal: 5,
-            borderTopWidth: 1,
-            borderWidth: 1,
-            borderRadius: 30,
-            borderColor: "rgba(169, 215, 124, 0.38)",
-            backgroundColor: "transparent",
-            shadowColor: "#000000",
-            shadowOpacity: 0.42,
-            shadowRadius: 22,
-            shadowOffset: { width: 0, height: 10 },
-            elevation: 20,
-          },
-          tabBarBackground: () => (
-            <View style={[StyleSheet.absoluteFill, styles.glassBackground]}>
-              <BlurView
-                blurTarget={blurTarget}
-                blurMethod={blurTarget ? "dimezisBlurView" : "none"}
-                intensity={58}
-                blurReductionFactor={1}
-                tint="regular"
-                style={StyleSheet.absoluteFill}
-              />
-              <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.glassTint]} />
-              <View pointerEvents="none" style={styles.glassHighlight} />
-            </View>
-          ),
-          tabBarItemStyle: { borderRadius: 19, marginHorizontal: 2, marginVertical: 3 },
-          tabBarActiveBackgroundColor: theme.colors.brand,
-          tabBarLabelStyle: { fontSize: 10, fontWeight: "800", marginTop: 1 },
-        }}
-      >
-        <Tabs.Screen name="index" options={{ title: t("Discover"), tabBarIcon: ({ color }) => <TabGlyph glyph="⌕" color={color} /> }} />
-        <Tabs.Screen name="news" options={{ title: t("News"), tabBarIcon: ({ color }) => <AppIcon name="news" color={color} size={24} /> }} />
-        <Tabs.Screen name="post" options={{ title: t("Report"), tabBarIcon: ({ color }) => <TabGlyph glyph="＋" color={color} /> }} />
-        <Tabs.Screen name="inbox" options={{ title: t("Messages"), tabBarIcon: ({ color }) => <AppIcon name="messages" color={color} size={24} /> }} />
-        <Tabs.Screen name="profile" options={{ title: t("Me"), tabBarIcon: ({ color }) => <AppIcon name="account" color={color} size={24} /> }} />
+          screenOptions={{
+            headerShown: false,
+            animation: "shift",
+            transitionSpec: {
+              animation: "timing",
+              config: { duration: 320, easing: Easing.out(Easing.cubic) },
+            },
+            sceneStyleInterpolator: ({ current }) => ({
+              sceneStyle: {
+                transform: [{
+                  translateX: current.progress.interpolate({
+                    inputRange: [-1, 0, 1],
+                    outputRange: [-screenWidth, 0, screenWidth],
+                  }),
+                }],
+              },
+            }),
+            tabBarActiveTintColor: theme.colors.bg,
+            tabBarInactiveTintColor: theme.colors.subtle,
+            tabBarHideOnKeyboard: true,
+            sceneStyle: { paddingBottom: 104 + insets.bottom, backgroundColor: theme.colors.bg },
+            tabBarStyle: {
+              position: "absolute",
+              left: 18,
+              right: 18,
+              bottom: insets.bottom + 14,
+              height: 72,
+              paddingTop: 6,
+              paddingBottom: 6,
+              paddingHorizontal: 5,
+              borderTopWidth: 0,
+              borderWidth: 1,
+              borderRadius: 30,
+              borderColor: "rgba(176, 238, 145, 0.42)",
+              backgroundColor: "transparent",
+              shadowColor: "#000000",
+              shadowOpacity: 0.38,
+              shadowRadius: 18,
+              shadowOffset: { width: 0, height: 9 },
+              elevation: 18,
+            },
+            tabBarBackground: () => (
+              <View style={styles.glassShell}>
+                <BlurView
+                  blurTarget={blurTarget ?? undefined}
+                  blurMethod={blurTarget ? "dimezisBlurView" : "none"}
+                  intensity={50}
+                  blurReductionFactor={1}
+                  tint="regular"
+                  style={StyleSheet.absoluteFill}
+                />
+                <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.greenGlassTint]} />
+                <View pointerEvents="none" style={styles.topGlassReflection} />
+              </View>
+            ),
+            tabBarItemStyle: { borderRadius: 24, marginHorizontal: 2, marginVertical: 3 },
+            tabBarActiveBackgroundColor: theme.colors.brand,
+            tabBarLabelStyle: { fontSize: 10, fontWeight: "800", marginTop: 1 },
+          }}
+        >
+          <Tabs.Screen name="index" options={{ title: t("Discover"), tabBarIcon: ({ color }) => <TabGlyph glyph="⌕" color={color} /> }} />
+          <Tabs.Screen name="news" options={{ title: t("News"), tabBarIcon: ({ color }) => <AppIcon name="news" color={color} size={24} /> }} />
+          <Tabs.Screen name="post" options={{ title: t("Report"), tabBarIcon: ({ color }) => <TabGlyph glyph="＋" color={color} /> }} />
+          <Tabs.Screen name="inbox" options={{ title: t("Messages"), tabBarIcon: ({ color }) => <AppIcon name="messages" color={color} size={24} /> }} />
+          <Tabs.Screen name="profile" options={{ title: t("Me"), tabBarIcon: ({ color }) => <AppIcon name="account" color={color} size={24} /> }} />
         </Tabs>
       </View>
     </TabBarBlurContext.Provider>
@@ -97,21 +118,21 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
-  glassBackground: {
-    backgroundColor: "rgba(20, 48, 30, 0.12)",
+  root: { flex: 1, backgroundColor: theme.colors.bg },
+  glassShell: {
+    ...StyleSheet.absoluteFill,
     borderRadius: 30,
     overflow: "hidden",
+    backgroundColor: "rgba(48, 86, 52, 0.14)",
   },
-  glassTint: {
-    backgroundColor: "rgba(42, 88, 48, 0.20)",
-  },
-  glassHighlight: {
+  greenGlassTint: { backgroundColor: "rgba(72, 126, 66, 0.20)" },
+  topGlassReflection: {
     position: "absolute",
     top: 0,
-    left: 22,
-    right: 22,
+    left: 24,
+    right: 24,
     height: 1,
-    backgroundColor: "rgba(219, 255, 227, 0.32)",
+    backgroundColor: "rgba(220, 255, 226, 0.44)",
   },
 });
 
