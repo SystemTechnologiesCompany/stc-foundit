@@ -40,7 +40,9 @@ export default function TabLayout() {
         <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: theme.colors.brand,
+          animation: "shift",
+          transitionSpec: { animation: "timing", config: { duration: 280 } },
+          tabBarActiveTintColor: theme.colors.bg,
           tabBarInactiveTintColor: theme.colors.subtle,
           tabBarHideOnKeyboard: true,
           sceneStyle: { paddingBottom: 88 + insets.bottom, backgroundColor: theme.colors.bg },
@@ -56,8 +58,8 @@ export default function TabLayout() {
             borderTopWidth: 1,
             borderWidth: 1,
             borderRadius: 30,
-            borderColor: "rgba(218, 255, 226, 0.25)",
-            backgroundColor: "rgba(8, 17, 13, 0.30)",
+            borderColor: "rgba(169, 215, 124, 0.38)",
+            backgroundColor: "transparent",
             shadowColor: "#000000",
             shadowOpacity: 0.42,
             shadowRadius: 22,
@@ -69,9 +71,9 @@ export default function TabLayout() {
               <BlurView
                 blurTarget={blurTarget}
                 blurMethod={blurTarget ? "dimezisBlurView" : "none"}
-                intensity={72}
-                blurReductionFactor={2}
-                tint="dark"
+                intensity={58}
+                blurReductionFactor={1}
+                tint="regular"
                 style={StyleSheet.absoluteFill}
               />
               <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.glassTint]} />
@@ -79,7 +81,7 @@ export default function TabLayout() {
             </View>
           ),
           tabBarItemStyle: { borderRadius: 19, marginHorizontal: 2, marginVertical: 3 },
-          tabBarActiveBackgroundColor: "rgba(169, 215, 124, 0.12)",
+          tabBarActiveBackgroundColor: theme.colors.brand,
           tabBarLabelStyle: { fontSize: 10, fontWeight: "800", marginTop: 1 },
         }}
       >
@@ -96,12 +98,12 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   glassBackground: {
-    backgroundColor: "rgba(8, 17, 13, 0.24)",
+    backgroundColor: "rgba(20, 48, 30, 0.12)",
     borderRadius: 30,
     overflow: "hidden",
   },
   glassTint: {
-    backgroundColor: "rgba(11, 24, 16, 0.38)",
+    backgroundColor: "rgba(42, 88, 48, 0.20)",
   },
   glassHighlight: {
     position: "absolute",
