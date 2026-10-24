@@ -11,7 +11,8 @@
     "android": {
       "runtimeVersion": {
         "policy": "appVersion"
-      }
+      },
+      "package": "com.stctesting.stcfoundit"
     },
     "ios": {},
     "runtimeVersion": {
