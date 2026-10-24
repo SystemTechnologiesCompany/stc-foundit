@@ -1,17 +1,28 @@
-import { useEffect, useState, type PropsWithChildren, type ReactNode } from "react";
+import { useCallback, useContext, useEffect, useRef, useState, type PropsWithChildren, type ReactNode } from "react";
 import { Animated, Image, Pressable, ScrollView, StyleSheet, type TextInputProps, type ColorValue, View, type ViewStyle } from "react-native";
+import { BlurTargetView } from "expo-blur";
+import { useFocusEffect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { I18nText as Text, I18nTextInput as TextInput } from "./LocalizedText";
 import { useLanguage } from "../providers/LanguageProvider";
 import { theme, type Tone } from "../constants/theme";
+import { TabBarBlurContext } from "./TabBarBlurContext";
 
 export function Screen({ children, style }: PropsWithChildren<{ style?: ViewStyle }>) {
   const { language } = useLanguage();
-  return (
+  const tabBarBlur = useContext(TabBarBlurContext);
+  const blurTargetRef = useRef<View | null>(null);
+  useFocusEffect(useCallback(() => {
+    if (!tabBarBlur) return;
+    tabBarBlur.registerTarget(blurTargetRef);
+    return () => tabBarBlur.clearTarget(blurTargetRef);
+  }, [tabBarBlur?.registerTarget, tabBarBlur?.clearTarget]));
+  const screen = (
     <SafeAreaView style={[styles.safe, { direction: language === "ar" ? "rtl" : "ltr" }, style]} edges={["top", "left", "right"]}>
       {children}
     </SafeAreaView>
   );
+  return tabBarBlur ? <BlurTargetView ref={blurTargetRef} style={{ flex: 1 }}>{screen}</BlurTargetView> : screen;
 }
 
 export function ScrollScreen({ children, contentStyle }: PropsWithChildren<{ contentStyle?: ViewStyle }>) {
