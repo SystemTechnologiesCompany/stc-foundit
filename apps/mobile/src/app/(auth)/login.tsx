@@ -21,7 +21,7 @@ export default function LoginScreen() {
   async function signInWithGoogle() {
     setGoogleBusy(true); setError("");
     try {
-      await startGoogleAuth();
+      if (await startGoogleAuth()) router.replace("/(tabs)");
     } catch (oauthError) {
       setError(oauthError instanceof Error ? oauthError.message : "Could not connect to Google. Try again.");
     } finally {
