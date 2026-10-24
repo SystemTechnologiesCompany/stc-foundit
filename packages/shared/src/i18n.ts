@@ -299,6 +299,7 @@ const arabic: Record<string, string> = {
   "Your report is only visible to signed-in, verified campus members.": "لا يظهر بلاغك إلا لأعضاء الجامعة المسجلين والذين تم التحقق منهم.",
   "Finding the latest updates…": "جارٍ البحث عن آخر التحديثات…",
   "Play community video": "تشغيل فيديو المجتمع",
+  "Auto-play when visible · tap to play": "يعمل تلقائيًا عند ظهوره · اضغط للتشغيل",
   "Video ready": "الفيديو جاهز",
   "selected": "محدد",
   "Play": "تشغيل",
