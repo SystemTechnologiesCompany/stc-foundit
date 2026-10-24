@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { PanResponder, StyleSheet, View, type ColorValue } from "react-native";
-import { BlurView } from "expo-blur";
 import { Tabs, router, useSegments } from "expo-router";
 import { I18nText as Text } from "../../components/LocalizedText";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -27,14 +26,14 @@ export default function TabLayout() {
   }), [currentIndex]);
 
   return (
-    <View style={{ flex: 1 }} {...swipeResponder.panHandlers}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.bg }} {...swipeResponder.panHandlers}>
       <Tabs
         screenOptions={{
           headerShown: false,
           tabBarActiveTintColor: theme.colors.brand,
           tabBarInactiveTintColor: theme.colors.subtle,
           tabBarHideOnKeyboard: true,
-          sceneStyle: { paddingBottom: 88 + insets.bottom },
+          sceneStyle: { paddingBottom: 88 + insets.bottom, backgroundColor: theme.colors.bg },
           tabBarStyle: {
             position: "absolute",
             left: 15,
@@ -48,7 +47,7 @@ export default function TabLayout() {
             borderWidth: 1,
             borderRadius: 27,
             borderColor: "rgba(218, 255, 226, 0.25)",
-            backgroundColor: "rgba(10, 20, 14, 0.72)",
+            backgroundColor: "#102017",
             overflow: "hidden",
             shadowColor: "#000000",
             shadowOpacity: 0.34,
@@ -56,7 +55,11 @@ export default function TabLayout() {
             shadowOffset: { width: 0, height: 8 },
             elevation: 14,
           },
-          tabBarBackground: () => <BlurView intensity={48} tint="dark" style={StyleSheet.absoluteFill} />,
+          tabBarBackground: () => (
+            <View style={[StyleSheet.absoluteFill, styles.glassBackground]}>
+              <View style={styles.glassHighlight} />
+            </View>
+          ),
           tabBarItemStyle: { borderRadius: 19, marginHorizontal: 2, marginVertical: 3 },
           tabBarActiveBackgroundColor: "rgba(169, 215, 124, 0.12)",
           tabBarLabelStyle: { fontSize: 10, fontWeight: "800", marginTop: 1 },
@@ -71,6 +74,21 @@ export default function TabLayout() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  glassBackground: {
+    backgroundColor: "#102017",
+    borderRadius: 27,
+  },
+  glassHighlight: {
+    position: "absolute",
+    top: 0,
+    left: 22,
+    right: 22,
+    height: 1,
+    backgroundColor: "rgba(219, 255, 227, 0.28)",
+  },
+});
 
 function TabGlyph({ glyph, color }: { glyph: string; color: ColorValue }) {
   return <Text style={{ color, fontSize: 25, fontWeight: "500", lineHeight: 27 }}>{glyph}</Text>;
