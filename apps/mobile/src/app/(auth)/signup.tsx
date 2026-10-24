@@ -3,11 +3,13 @@ import { Link, router } from "expo-router";
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { I18nText as Text } from "../../components/LocalizedText";
 import { LanguageDropdown } from "../../components/LanguageDropdown";
+import { GoogleAuthButton } from "../../components/GoogleAuthButton";
 import { UniversityDropdown } from "../../components/UniversityDropdown";
 import * as Linking from "expo-linking";
 import { BrandLockup, Button, Eyebrow, MessageBanner, Panel, Screen, TextField } from "../../components/ui";
 import { theme } from "../../constants/theme";
 import { isSupabaseConfigured, supabase } from "../../lib/supabase";
+import { startGoogleAuth } from "../../lib/googleAuth";
 
 export default function SignupScreen() {
   const [name, setName] = useState("");
@@ -15,8 +17,20 @@ export default function SignupScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
+
+  async function signUpWithGoogle() {
+    setGoogleBusy(true); setError("");
+    try {
+      await startGoogleAuth();
+    } catch (oauthError) {
+      setError(oauthError instanceof Error ? oauthError.message : "Could not connect to Google. Try again.");
+    } finally {
+      setGoogleBusy(false);
+    }
+  }
 
   async function createAccount() {
     if (!name.trim() || !university.trim() || !email.trim() || password.length < 8) {
@@ -64,6 +78,8 @@ export default function SignupScreen() {
           </View>
           <Panel style={styles.panel}>
             {!isSupabaseConfigured ? <MessageBanner tone="info">Connect the app to Supabase first: copy apps/mobile/.env.example to apps/mobile/.env, add your project URL and public key, then restart Expo.</MessageBanner> : null}
+            <GoogleAuthButton onPress={() => void signUpWithGoogle()} loading={googleBusy} disabled={!isSupabaseConfigured} />
+            <Text style={styles.separator}>or sign up with email</Text>
             <TextField label="Full name" placeholder="How should we call you?" autoComplete="name" value={name} onChangeText={setName} />
             <UniversityDropdown value={university} onChange={setUniversity} />
             <TextField label="University email" placeholder="you@university.edu" autoCapitalize="none" autoComplete="email" keyboardType="email-address" value={email} onChangeText={setEmail} />
@@ -85,7 +101,7 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1 }, content: { flexGrow: 1, paddingHorizontal: 24, paddingTop: 18, paddingBottom: 30, justifyContent: "center", gap: 22 }, brandRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8 },
   heading: { gap: 10, marginTop: 4 }, title: { color: theme.colors.text, fontSize: 35, lineHeight: 39, fontWeight: "900", letterSpacing: -1.25 }, subtitle: { color: theme.colors.muted, fontSize: 13, lineHeight: 20 },
-  panel: { gap: 14, padding: 17 }, privacy: { color: theme.colors.subtle, textAlign: "center", fontSize: 10, lineHeight: 15 },
+  panel: { gap: 14, padding: 17 }, separator: { color: theme.colors.subtle, fontSize: 11, textAlign: "center", marginVertical: -4 }, privacy: { color: theme.colors.subtle, textAlign: "center", fontSize: 10, lineHeight: 15 },
   joinRow: { flexDirection: "row", gap: 6, justifyContent: "center" }, joinText: { color: theme.colors.muted, fontSize: 13 }, joinLink: { color: theme.colors.brand, fontSize: 13, fontWeight: "800" },
   sentWrap: { flex: 1, justifyContent: "center", padding: 24, gap: 18 }, mailOrb: { width: 84, height: 84, borderRadius: 32, backgroundColor: theme.colors.brandDeep, alignItems: "center", justifyContent: "center", borderColor: "#34533B", borderWidth: 1, marginTop: 14 }, mailIcon: { color: theme.colors.brand, fontSize: 34 }, spark: { position: "absolute", width: 9, height: 9, borderRadius: 5, right: 12, top: 12, backgroundColor: theme.colors.orange },
   sentTitle: { color: theme.colors.text, fontSize: 40, lineHeight: 43, fontWeight: "900", letterSpacing: -1.3 }, sentBody: { color: theme.colors.muted, fontSize: 14, lineHeight: 22 }, email: { color: theme.colors.text, fontWeight: "800" },

@@ -3,17 +3,31 @@ import { Link, router } from "expo-router";
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { I18nText as Text } from "../../components/LocalizedText";
 import { LanguageDropdown } from "../../components/LanguageDropdown";
+import { GoogleAuthButton } from "../../components/GoogleAuthButton";
 import * as Linking from "expo-linking";
 import { BrandLockup, Button, Eyebrow, MessageBanner, Panel, Screen, TextField } from "../../components/ui";
 import { theme } from "../../constants/theme";
 import { isSupabaseConfigured, supabase } from "../../lib/supabase";
+import { startGoogleAuth } from "../../lib/googleAuth";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
   const [resetBusy, setResetBusy] = useState(false);
   const [error, setError] = useState("");
+
+  async function signInWithGoogle() {
+    setGoogleBusy(true); setError("");
+    try {
+      await startGoogleAuth();
+    } catch (oauthError) {
+      setError(oauthError instanceof Error ? oauthError.message : "Could not connect to Google. Try again.");
+    } finally {
+      setGoogleBusy(false);
+    }
+  }
 
   async function signIn() {
     setBusy(true); setError("");
@@ -70,6 +84,8 @@ export default function LoginScreen() {
           </View>
           <Panel style={styles.formPanel}>
             {!isSupabaseConfigured ? <MessageBanner tone="info">Connect the app to Supabase first: copy apps/mobile/.env.example to apps/mobile/.env, add your project URL and public key, then restart Expo.</MessageBanner> : null}
+            <GoogleAuthButton onPress={() => void signInWithGoogle()} loading={googleBusy} disabled={!isSupabaseConfigured} />
+            <Text style={styles.separator}>or sign in with email</Text>
             <TextField label="Email address" placeholder="you@university.edu" autoCapitalize="none" autoComplete="email" keyboardType="email-address" value={email} onChangeText={setEmail} />
             <TextField label="Password" placeholder="Your password" secureTextEntry showPasswordToggle autoComplete="current-password" value={password} onChangeText={setPassword} onSubmitEditing={signIn} />
             <Pressable onPress={forgotPassword} disabled={resetBusy} style={styles.forgot}><Text style={styles.forgotText}>{resetBusy ? "Sending reset link…" : "Forgot password?"}</Text></Pressable>
@@ -96,6 +112,7 @@ const styles = StyleSheet.create({
   subtitle: { color: theme.colors.muted, fontSize: 14, lineHeight: 21, maxWidth: 310 },
   nameChangeNote: { color: theme.colors.brand, fontSize: 11, lineHeight: 16, maxWidth: 310 },
   formPanel: { gap: 17, padding: 18 },
+  separator: { color: theme.colors.subtle, fontSize: 11, textAlign: "center", marginVertical: -6 },
   forgot: { alignSelf: "flex-end", marginTop: -7 },
   forgotText: { color: theme.colors.brand, fontSize: 12, fontWeight: "700" },
   joinRow: { flexDirection: "row", gap: 6, justifyContent: "center" },

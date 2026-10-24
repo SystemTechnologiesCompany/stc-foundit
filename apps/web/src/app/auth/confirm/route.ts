@@ -26,10 +26,20 @@ export async function GET(request: NextRequest) {
       },
     );
 
-    const { error } = code
+    const { data, error } = code
       ? await supabase.auth.exchangeCodeForSession(code)
       : await supabase.auth.verifyOtp({ token_hash: tokenHash!, type: type! });
-    if (!error) return NextResponse.redirect(new URL("/reports", origin));
+    if (!error) {
+      const user = data.user;
+      if (code && user?.app_metadata.provider === "google") {
+        const metadata = user.user_metadata ?? {};
+        const displayName = [metadata.full_name, metadata.name].find((value): value is string => typeof value === "string" && value.trim().length > 0)?.trim();
+        if (displayName) {
+          await supabase.from("profiles").update({ display_name: displayName }).eq("id", user.id).eq("display_name", "New user");
+        }
+      }
+      return NextResponse.redirect(new URL("/reports", origin));
+    }
   }
 
   return NextResponse.redirect(new URL("/login?verification=failed", origin));

@@ -13,6 +13,9 @@
         "policy": "appVersion"
       }
     },
-    "ios": {}
+    "ios": {},
+    "runtimeVersion": {
+      "policy": "appVersion"
+    }
   }
 }

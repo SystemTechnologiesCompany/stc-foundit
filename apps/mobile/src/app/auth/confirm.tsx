@@ -7,7 +7,7 @@ import { theme } from "../../constants/theme";
 import { supabase } from "../../lib/supabase";
 
 export default function ConfirmEmailScreen() {
-  const params = useLocalSearchParams<{ code?: string; token_hash?: string; type?: string }>();
+  const params = useLocalSearchParams<{ code?: string; token_hash?: string; type?: string; flow?: string }>();
   const [status, setStatus] = useState<"checking" | "ready" | "error">("checking");
   const [error, setError] = useState("");
 
@@ -15,16 +15,29 @@ export default function ConfirmEmailScreen() {
     let alive = true;
     async function confirm() {
       let result: { error: { message: string } | null } = { error: null };
-      if (params.code) result = await supabase.auth.exchangeCodeForSession(params.code);
+      let oauthUser: { id: string; user_metadata?: Record<string, unknown> } | null = null;
+      if (params.code) {
+        const exchange = await supabase.auth.exchangeCodeForSession(params.code);
+        result = { error: exchange.error };
+        oauthUser = exchange.data.session?.user ?? null;
+      }
       else if (params.token_hash && params.type) result = await supabase.auth.verifyOtp({ token_hash: params.token_hash, type: params.type as "signup" | "email" | "recovery" | "invite" | "magiclink" | "email_change" });
       else result = { error: { message: "This confirmation link is incomplete or has expired. Request a fresh email and try again." } };
       if (!alive) return;
       if (result.error) { setError(result.error.message); setStatus("error"); }
+      else if (params.flow === "google") {
+        const metadata = oauthUser?.user_metadata ?? {};
+        const displayName = [metadata.full_name, metadata.name].find((value): value is string => typeof value === "string" && value.trim().length > 0)?.trim();
+        if (oauthUser && displayName) {
+          await supabase.from("profiles").update({ display_name: displayName }).eq("id", oauthUser.id).eq("display_name", "New user");
+        }
+        router.replace("/(tabs)");
+      }
       else { setStatus("ready"); }
     }
     confirm();
     return () => { alive = false; };
-  }, [params.code, params.token_hash, params.type]);
+  }, [params.code, params.token_hash, params.type, params.flow]);
 
   return (
     <Screen>
