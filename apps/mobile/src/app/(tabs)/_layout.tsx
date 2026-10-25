@@ -172,7 +172,6 @@ function FloatingTabBar({
                   if (!focused && !event.defaultPrevented) navigation.navigate(route.name, route.params);
                 }}
                 onLongPress={() => navigation.emit({ type: "tabLongPress", target: route.key })}
-                android_ripple={{ color: "rgba(169, 215, 124, 0.16)", borderless: false }}
                 style={styles.tabButton}
               >
                 {icon}
