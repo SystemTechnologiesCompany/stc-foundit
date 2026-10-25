@@ -139,9 +139,9 @@ function FloatingTabBar({
           <BlurView
             blurTarget={blurTarget ?? undefined}
             blurMethod={blurTarget ? "dimezisBlurView" : "none"}
-            intensity={78}
+            intensity={88}
             blurReductionFactor={1}
-            tint="systemThinMaterialDark"
+            tint="systemUltraThinMaterialDark"
             style={StyleSheet.absoluteFill}
           />
           <View style={styles.reflection} />
