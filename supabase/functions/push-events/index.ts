@@ -51,11 +51,12 @@ Deno.serve(async (request) => {
       const isAdminMessage = Boolean(conversation?.admin_recipient_id)
         && message.sender_id !== conversation?.admin_recipient_id;
       const messageBody = String(message.content ?? "").trim();
+      const notificationBody = messageBody.replace(/\[([^\]]+)\]\(https?:\/\/[^\s)]+\)/g, "$1");
       notifications.push(...await buildNotifications(admin, recipients, (token) => ({
         to: token,
         title: isAdminMessage ? "Message from FoundIt Admin" : "New FoundIt message",
         body: isAdminMessage
-          ? (messageBody.length > 220 ? `${messageBody.slice(0, 217)}…` : messageBody)
+          ? (notificationBody.length > 220 ? `${notificationBody.slice(0, 217)}…` : notificationBody)
           : `Someone sent you a message about “${title}”.`,
         sound: "default",
         channelId: "foundit-updates",

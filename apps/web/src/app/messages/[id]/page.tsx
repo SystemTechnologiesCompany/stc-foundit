@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
+import { MessageContent } from "@/components/MessageContent";
 import { RadarLoader } from "@/components/RadarLoader";
 import type { Message } from "@stc-foundit/shared";
 
@@ -182,7 +183,7 @@ export default function ConversationPage() {
             <div key={message.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[84%] space-y-1.5 rounded-[1.2rem] px-3.5 py-2.5 text-sm ${mine ? "rounded-br-sm bg-brand text-black" : "rounded-bl-sm border border-border bg-surface"}`}>
                 {message.imageUrl && <a href={message.imageUrl} target="_blank" rel="noreferrer"><img src={message.imageUrl} alt="Photo shared in this conversation" className="max-h-80 w-full min-w-36 rounded-xl object-cover" /></a>}
-                {(message.content !== "Photo" || !message.attachment_path) && <p className="whitespace-pre-wrap break-words">{message.content}</p>}
+                {(message.content !== "Photo" || !message.attachment_path) && <p className="whitespace-pre-wrap break-words"><MessageContent content={message.content} /></p>}
                 <p className={`text-right text-[0.62rem] ${mine ? "text-black/60" : "text-muted"}`}>{new Date(message.created_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</p>
               </div>
             </div>

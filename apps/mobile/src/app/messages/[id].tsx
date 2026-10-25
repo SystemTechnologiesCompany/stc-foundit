@@ -6,6 +6,7 @@ import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleShee
 import { I18nText as Text, I18nTextInput as TextInput } from "../../components/LocalizedText";
 import type { Message } from "@stc-foundit/shared";
 import { AppIcon, Eyebrow, MessageBanner, RadarLoader, Screen } from "../../components/ui";
+import { MessageContent } from "../../components/MessageContent";
 import { theme } from "../../constants/theme";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../providers/AuthProvider";
@@ -142,7 +143,7 @@ export default function ConversationScreen() {
           {!loading && messages.length === 0 ? <View style={styles.firstMessage}><View style={styles.firstIcon}><AppIcon name="messages" size={23} /></View><Text style={styles.firstTitle}>Start with a kind hello.</Text><Text style={styles.firstCopy}>Share the report detail you’re asking about and take it from there.</Text></View> : null}
           {messages.map((message) => {
             const mine = message.sender_id === user?.id;
-            return <View key={message.id} style={[styles.messageRow, mine ? styles.mineRow : styles.theirsRow]}><View style={[styles.bubble, mine ? styles.mineBubble : styles.theirsBubble]}>{message.imageUrl ? <Image source={{ uri: message.imageUrl }} style={photoStyles.messageImage} accessibilityLabel="Photo shared in this conversation" /> : null}{message.content !== "Photo" || !message.attachment_path ? <Text style={[styles.bubbleText, mine && styles.mineText]}>{message.content}</Text> : null}<Text style={[styles.messageTime, mine && styles.mineTime]}>{new Date(message.created_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</Text></View></View>;
+            return <View key={message.id} style={[styles.messageRow, mine ? styles.mineRow : styles.theirsRow]}><View style={[styles.bubble, mine ? styles.mineBubble : styles.theirsBubble]}>{message.imageUrl ? <Image source={{ uri: message.imageUrl }} style={photoStyles.messageImage} accessibilityLabel="Photo shared in this conversation" /> : null}{message.content !== "Photo" || !message.attachment_path ? <MessageContent content={message.content} style={[styles.bubbleText, mine && styles.mineText]} /> : null}<Text style={[styles.messageTime, mine && styles.mineTime]}>{new Date(message.created_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</Text></View></View>;
           })}
           {error ? <MessageBanner>{error}</MessageBanner> : null}
         </ScrollView>

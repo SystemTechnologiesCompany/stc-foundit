@@ -212,6 +212,7 @@ export default function AdminPage() {
               <p className="mt-1 text-xs leading-5 text-muted">Each active member gets this in their FoundIt inbox and as a push notification when notifications are enabled. They can reply. Suspended accounts and admins are excluded.</p>
             </div>
             <textarea required maxLength={2000} value={broadcastDraft} onChange={(event) => setBroadcastDraft(event.target.value)} rows={4} placeholder="Write an announcement or important warning…" className="w-full resize-y rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted/70 focus:border-brand" />
+            <p className="text-xs leading-5 text-muted">For a one-word app download link, add <code className="rounded bg-background px-1.5 py-1 text-foreground">[Download](https://stcfoundit.netlify.app/download)</code> to your message.</p>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <span className="text-xs text-muted">{broadcastDraft.length}/2000</span>
               <button type="submit" disabled={broadcastBusy || !broadcastDraft.trim()} className="rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-black transition hover:bg-brand-hover disabled:opacity-50">{broadcastBusy ? "Sending…" : "Send to all active members"}</button>
