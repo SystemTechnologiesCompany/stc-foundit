@@ -78,7 +78,9 @@ export default function TabLayout() {
                 },
               };
             },
-            sceneStyle: { paddingBottom: 104 + insets.bottom, backgroundColor: theme.colors.bg },
+            // Keep each screen full-height so the floating glass bar samples
+            // the live page behind it instead of exposing the root background.
+            sceneStyle: { backgroundColor: theme.colors.bg },
           }}
         >
           <Tabs.Screen name="index" options={{ title: t("Discover"), tabBarIcon: ({ color }) => <TabGlyph glyph="⌕" color={color} /> }} />

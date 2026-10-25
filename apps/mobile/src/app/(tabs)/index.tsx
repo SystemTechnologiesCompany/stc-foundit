@@ -115,7 +115,7 @@ export default function DiscoverScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingHorizontal: 19, paddingTop: 10, paddingBottom: 32, gap: 21 },
+  content: { paddingHorizontal: 19, paddingTop: 10, paddingBottom: 130, gap: 21 },
   topRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" }, avatar: { width: 39, height: 39, borderRadius: 15, overflow: "hidden", backgroundColor: theme.colors.panelRaised, borderWidth: 1, borderColor: theme.colors.line, alignItems: "center", justifyContent: "center" }, avatarImage: { width: "100%", height: "100%" }, avatarText: { color: theme.colors.brand, fontSize: 15, fontWeight: "900" },
   greeting: { gap: 6, paddingTop: 3 }, hello: { color: theme.colors.text, fontSize: 29, fontWeight: "900", letterSpacing: -0.9 }, wave: { color: theme.colors.brand, fontSize: 22 }, intro: { color: theme.colors.muted, fontSize: 13 },
   hero: { padding: 19, borderRadius: 24, overflow: "hidden", backgroundColor: "#142319", borderWidth: 1, borderColor: "#324A35", gap: 12 }, heroGlow: { position: "absolute", width: 210, height: 210, borderRadius: 110, top: -120, right: -48, backgroundColor: "#324F2A", opacity: 0.42 }, heroTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" }, heroTag: { flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 9, paddingVertical: 7, borderRadius: 20, backgroundColor: "#1D3321" }, liveDot: { width: 6, height: 6, borderRadius: 5, backgroundColor: theme.colors.brand }, heroTagText: { color: theme.colors.brand, fontSize: 8, fontWeight: "900", letterSpacing: 1 }, heroSpark: { color: "#8FC363", fontSize: 23 },
