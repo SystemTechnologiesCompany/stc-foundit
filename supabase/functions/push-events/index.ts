@@ -41,17 +41,22 @@ Deno.serve(async (request) => {
     if (event.table === "messages" && event.type === "INSERT" && event.record) {
       const message = event.record;
       const { data: conversation, error: conversationError } = await admin.from("conversations")
-        .select("report_id, reports(title), conversation_members(user_id)")
+        .select("report_id, admin_recipient_id, reports(title), conversation_members(user_id)")
         .eq("id", String(message.conversation_id)).maybeSingle();
       if (conversationError) throw conversationError;
       const report = (conversation?.reports ?? null) as { title?: string } | null;
       const members = (conversation?.conversation_members ?? []) as { user_id: string }[];
       const recipients = members.map((member) => member.user_id).filter((id) => id !== message.sender_id);
       const title = report?.title ?? "your campus report";
+      const isAdminMessage = Boolean(conversation?.admin_recipient_id)
+        && message.sender_id !== conversation?.admin_recipient_id;
+      const messageBody = String(message.content ?? "").trim();
       notifications.push(...await buildNotifications(admin, recipients, (token) => ({
         to: token,
-        title: "New FoundIt message",
-        body: `Someone sent you a message about “${title}”.`,
+        title: isAdminMessage ? "Message from FoundIt Admin" : "New FoundIt message",
+        body: isAdminMessage
+          ? (messageBody.length > 220 ? `${messageBody.slice(0, 217)}…` : messageBody)
+          : `Someone sent you a message about “${title}”.`,
         sound: "default",
         channelId: "foundit-updates",
         data: { url: `/messages/${message.conversation_id}` },

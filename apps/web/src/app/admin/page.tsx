@@ -114,7 +114,7 @@ export default function AdminPage() {
   async function sendBroadcast(event: React.FormEvent) {
     event.preventDefault();
     if (!broadcastDraft.trim() || broadcastBusy) return;
-    if (!confirm("Send this message in a private chat to every active member?")) return;
+    if (!confirm("Send this message to every active member? It will appear in their FoundIt inbox and as a push notification for members who have notifications enabled.")) return;
     setBroadcastBusy(true);
     setNotice("");
     const { data: recipientCount, error: sendError } = await supabase.rpc("broadcast_admin_message", {
@@ -126,7 +126,7 @@ export default function AdminPage() {
       return;
     }
     setBroadcastDraft("");
-    setNotice(`Sent privately to ${recipientCount ?? 0} active members.`);
+    setNotice(`Sent to ${recipientCount ?? 0} active members. Their app will show a push alert if notifications are enabled.`);
   }
 
   if (checking) {
@@ -209,7 +209,7 @@ export default function AdminPage() {
           <form onSubmit={sendBroadcast} className="space-y-3 rounded-2xl border border-brand/20 bg-surface p-4 sm:p-5">
             <div>
               <h2 className="font-semibold">Message all active members</h2>
-              <p className="mt-1 text-xs leading-5 text-muted">Each person receives a private message in FoundIt and can reply. Suspended accounts and admins are excluded.</p>
+              <p className="mt-1 text-xs leading-5 text-muted">Each active member gets this in their FoundIt inbox and as a push notification when notifications are enabled. They can reply. Suspended accounts and admins are excluded.</p>
             </div>
             <textarea required maxLength={2000} value={broadcastDraft} onChange={(event) => setBroadcastDraft(event.target.value)} rows={4} placeholder="Write an announcement or important warning…" className="w-full resize-y rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted/70 focus:border-brand" />
             <div className="flex flex-wrap items-center justify-between gap-3">
