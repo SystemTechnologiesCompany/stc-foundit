@@ -11,6 +11,13 @@ export async function startGoogleAuth() {
   const { GoogleSignin, isSuccessResponse } = await import("@react-native-google-signin/google-signin");
   GoogleSignin.configure({ webClientId, offlineAccess: false });
   await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+  // Clear the Google Sign-In SDK's remembered account so Android shows the
+  // account chooser instead of silently reusing the previous selection.
+  try {
+    await GoogleSignin.signOut();
+  } catch {
+    // There may not be a cached Google account on the first sign-in.
+  }
   const response = await GoogleSignin.signIn();
   if (!isSuccessResponse(response)) return false;
 
